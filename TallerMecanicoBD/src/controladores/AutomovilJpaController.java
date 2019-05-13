@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import modelo.Automovil;
 
 /**
@@ -28,7 +29,7 @@ public class AutomovilJpaController implements Serializable {
     public AutomovilJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    private EntityManagerFactory emf = null;
+    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("TallerMecanicoBDPU");
 
     public EntityManager getEntityManager() {
         return emf.createEntityManager();

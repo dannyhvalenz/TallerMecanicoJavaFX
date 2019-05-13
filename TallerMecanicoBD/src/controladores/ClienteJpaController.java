@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import modelo.Cliente;
 
 /**
@@ -24,12 +25,12 @@ import modelo.Cliente;
  * @author dany
  */
 public class ClienteJpaController implements Serializable {
+    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("TallerMecanicoBDPU");
 
-    public ClienteJpaController(EntityManagerFactory emf) {
-        this.emf = emf;
+    
+    public ClienteJpaController() {
     }
-    private EntityManagerFactory emf = null;
-
+    
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
@@ -109,9 +110,9 @@ public class ClienteJpaController implements Serializable {
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
             if (msg == null || msg.length() == 0) {
-                Integer id = cliente.getId();
-                if (findCliente(id) == null) {
-                    throw new NonexistentEntityException("The cliente with id " + id + " no longer exists.");
+                String nombre = cliente.getNombre();
+                if (findCliente(nombre) == null) {
+                    throw new NonexistentEntityException("El cliente con el nombre " + nombre + " no existe.");
                 }
             }
             throw ex;
@@ -178,10 +179,10 @@ public class ClienteJpaController implements Serializable {
         }
     }
 
-    public Cliente findCliente(Integer id) {
+    public Cliente findCliente(String cliente) {
         EntityManager em = getEntityManager();
         try {
-            return em.find(Cliente.class, id);
+            return em.find(Cliente.class, cliente);
         } finally {
             em.close();
         }

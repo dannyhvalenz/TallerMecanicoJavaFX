@@ -11,8 +11,12 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /**
@@ -22,6 +26,10 @@ import javafx.stage.Stage;
 public class IniciarSesion extends Stage{
     //private EntityManagerFactory emf = Persistence.createEntityManagerFactory("TallerMecanicoPU");
     private ImageView logo;
+    private Label etiquetaLogo;
+    private JFXTextField correo, contrasena;
+    private JFXButton iniciarSesion;
+    
     
     public IniciarSesion() {
         configurarPanel();
@@ -30,40 +38,56 @@ public class IniciarSesion extends Stage{
     }
 
     private void configurarPanel() {
-        
-        VBox raiz = new VBox();
-        raiz.setSpacing(40);
-        raiz.setPadding(new Insets(10));
-        Scene scene = new Scene(raiz,300,500); 
+        AnchorPane root = new AnchorPane();
+        Scene scene = new Scene(root,300,500); 
+        scene.getStylesheets().add(getClass().getResource("/vista/styles.css").toExternalForm());
+        root.getStyleClass().add("background");
         setScene(scene);
         
-        // LOGO
-        Label logo = new Label("Taller Mecanico");
-        logo.setStyle("-fx-font-size: 20pt");
-        logo.setPadding(new Insets (20));
+        crearComponentes();
 
-        //logo.setImage(new Image("../resources/avatar_cliente.png"));
+        root.getChildren().addAll(logo, etiquetaLogo, correo,contrasena, iniciarSesion);
+    }
 
-        JFXTextField usuario = new JFXTextField();
-        usuario.setPromptText("Usuario");
-        usuario.setLabelFloat(true);
-        usuario.setPrefHeight(30);
-        usuario.setPadding(new Insets (10));
+    private void crearComponentes() {
+        logo = new ImageView();
+        logo.setImage(new Image("/resources/car.png"));
+        logo.setLayoutX(30);
+        logo.setLayoutY(20);
+        logo.setFitHeight(122);
+        logo.setFitWidth(250);
         
-        JFXTextField contrasena = new JFXTextField();
+        etiquetaLogo = new Label("Taller Mecanico");
+        etiquetaLogo.getStyleClass().add("logo");
+        etiquetaLogo.setLayoutX(20);
+        etiquetaLogo.setLayoutY(137);
+        
+        correo = new JFXTextField();
+        correo.setPromptText("Correo Electronico");
+        correo.setLabelFloat(true);
+        correo.setMinWidth(250);
+        correo.getStyleClass().add("TextField");
+        correo.setLayoutX(25);
+        correo.setLayoutY(218);
+        
+        contrasena = new JFXTextField();
         contrasena.setPromptText("Contraseña");
         contrasena.setLabelFloat(true);
-        contrasena.setPrefHeight(30);
-        contrasena.setPadding(new Insets (10));
+        contrasena.setMinWidth(250);
+        contrasena.getStyleClass().add("TextField");
+        contrasena.setLayoutX(25);
+        contrasena.setLayoutY(308);
         
-        JFXButton iniciarSesion = new JFXButton();
+        iniciarSesion = new JFXButton();
         iniciarSesion.setText("Iniciar Sesion");
-        iniciarSesion.setMinHeight(30);
-        iniciarSesion.setPadding(new Insets (10));
-        iniciarSesion.setStyle("-fx-background-color: #1156CB; -fx-text-fill: white");
+        iniciarSesion.setMinHeight(40);
+        iniciarSesion.setMinWidth(200);
+        iniciarSesion.setLayoutX(50);
+        iniciarSesion.setLayoutY(399);
+        iniciarSesion.getStyleClass().add("iniciarSesion");
         iniciarSesion.setOnAction(evt -> {
-            // TODO: VALIDACION DE USUARIO
-//            if(){
+            // TODO: VALIDACION
+//            if(validarUsuario()){
               MostrarClientes clientes = new MostrarClientes();
               clientes.show();
               this.hide();
@@ -71,8 +95,13 @@ public class IniciarSesion extends Stage{
 //            
 //            }
         });
-        
-        raiz.getChildren().addAll(logo, usuario,contrasena, iniciarSesion);
-        raiz.setAlignment(Pos.CENTER);
     }
+    
+    private boolean validarUsuario() {
+        boolean valido = true;
+        return valido;
+    }
+    
 }
+
+   

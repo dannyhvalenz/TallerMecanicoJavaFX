@@ -1,0 +1,86 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Apr 16, 2019, 5:22:33 PM
+    Author     : dany
+*/
+
+.background {
+    -fx-background-color: white;
+}
+
+.aceptar {
+    -fx-border-color: #77B530; 
+    -fx-border-radius: 50; 
+    -fx-border-width: 2; 
+    -fx-text-fill: #77B530;
+    -fx-background-radius: 50;
+}
+
+.cancelar {
+    -fx-border-color: #F5253E; 
+    -fx-border-radius: 50; 
+    -fx-border-width: 2; 
+    -fx-text-fill: #F5253E;
+    -fx-background-radius: 50;
+}
+
+.administrarCliente {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 20pt;
+    -fx-font-family: Futura;
+}
+
+.panelCliente {
+    -fx-background-color: #1565c0;
+}
+
+.label {
+    -fx-font-family: Futura;
+    -fx-font-size: 14pt;
+}
+
+.agregar {
+    -fx-background-color: #FFC107;
+    -fx-background-radius: 50;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 20pt;
+}
+
+.barraBusqueda {
+    -fx-background-color: #FFFFFF;
+    -fx-border-radius: 30;
+    -fx-border-width: 5;
+}
+
+.panelBusqueda {
+    -fx-background-color: #003c8f;
+}
+
+.botonVer {
+    -fx-background-color: #003c8f; 
+    -fx-text-fill: white;
+    -fx-font-size: 12pt;
+    -fx-font-family: Futura;
+}
+
+.TextField {
+    -fx-font-family: Futura;
+}
+
+.logo {
+    -fx-font-family: Futura;
+    -fx-text-fill: #424242;
+    -fx-font-size: 24pt;
+    -fx-font-weight: bold;
+}
+
+.iniciarSesion {
+    -fx-background-color: #F36917;
+    -fx-text-fill: white;
+    -fx-font-size: 14pt;
+    -fx-font-family: Futura;
+}
