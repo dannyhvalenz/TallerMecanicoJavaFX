@@ -7,8 +7,6 @@ package tallermecanico;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import vista.IniciarSesion;
 
 /**
