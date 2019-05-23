@@ -9,8 +9,6 @@ import java.io.Serializable;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -22,7 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author dany
  */
 @Entity
-@Table(name = "administrador")
+@Table(name = "Administrador")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Administrador.findAll", query = "SELECT a FROM Administrador a")
@@ -34,7 +32,6 @@ public class Administrador implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "id")
     private Integer id;
@@ -116,7 +113,7 @@ public class Administrador implements Serializable {
 
     @Override
     public String toString() {
-        return "modelo.Administrador[ id=" + id + " ]";
+        return "controladores.Administrador[ id=" + id + " ]";
     }
     
 }

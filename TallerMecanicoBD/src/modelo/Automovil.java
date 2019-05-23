@@ -8,10 +8,9 @@ package modelo;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -27,7 +26,7 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author dany
  */
 @Entity
-@Table(name = "automovil")
+@Table(name = "Automovil")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Automovil.findAll", query = "SELECT a FROM Automovil a")
@@ -40,7 +39,6 @@ public class Automovil implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "id")
     private Integer id;
@@ -59,7 +57,7 @@ public class Automovil implements Serializable {
     @JoinColumn(name = "idCliente", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Cliente idCliente;
-    @OneToMany(mappedBy = "idAutomovil")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idAutomovil")
     private List<Reparacion> reparacionList;
 
     public Automovil() {
@@ -156,7 +154,7 @@ public class Automovil implements Serializable {
 
     @Override
     public String toString() {
-        return "modelo.Automovil[ id=" + id + " ]";
+        return "controladores.Automovil[ id=" + id + " ]";
     }
     
 }

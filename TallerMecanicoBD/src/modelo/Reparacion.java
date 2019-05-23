@@ -6,20 +6,15 @@
 package modelo;
 
 import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -27,7 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author dany
  */
 @Entity
-@Table(name = "reparacion")
+@Table(name = "Reparacion")
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Reparacion.findAll", query = "SELECT r FROM Reparacion r")
@@ -42,7 +37,6 @@ public class Reparacion implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "id")
     private Integer id;
@@ -54,19 +48,18 @@ public class Reparacion implements Serializable {
     private String kilometraje;
     @Basic(optional = false)
     @Column(name = "fecha")
-    @Temporal(TemporalType.DATE)
-    private Date fecha;
+    private String fecha;
     @Basic(optional = false)
     @Column(name = "hora")
-    @Temporal(TemporalType.TIME)
-    private Date hora;
+    private String hora;
     @Basic(optional = false)
     @Column(name = "descripcionFalla")
     private String descripcionFalla;
+    @Basic(optional = false)
     @Column(name = "descripcionMantenimiento")
     private String descripcionMantenimiento;
     @JoinColumn(name = "idAutomovil", referencedColumnName = "id")
-    @ManyToOne
+    @ManyToOne(optional = false)
     private Automovil idAutomovil;
 
     public Reparacion() {
@@ -76,13 +69,14 @@ public class Reparacion implements Serializable {
         this.id = id;
     }
 
-    public Reparacion(Integer id, String tipo, String kilometraje, Date fecha, Date hora, String descripcionFalla) {
+    public Reparacion(Integer id, String tipo, String kilometraje, String fecha, String hora, String descripcionFalla, String descripcionMantenimiento) {
         this.id = id;
         this.tipo = tipo;
         this.kilometraje = kilometraje;
         this.fecha = fecha;
         this.hora = hora;
         this.descripcionFalla = descripcionFalla;
+        this.descripcionMantenimiento = descripcionMantenimiento;
     }
 
     public Integer getId() {
@@ -109,19 +103,19 @@ public class Reparacion implements Serializable {
         this.kilometraje = kilometraje;
     }
 
-    public Date getFecha() {
+    public String getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(String fecha) {
         this.fecha = fecha;
     }
 
-    public Date getHora() {
+    public String getHora() {
         return hora;
     }
 
-    public void setHora(Date hora) {
+    public void setHora(String hora) {
         this.hora = hora;
     }
 
@@ -171,7 +165,7 @@ public class Reparacion implements Serializable {
 
     @Override
     public String toString() {
-        return "modelo.Reparacion[ id=" + id + " ]";
+        return "controladores.Reparacion[ id=" + id + " ]";
     }
     
 }
