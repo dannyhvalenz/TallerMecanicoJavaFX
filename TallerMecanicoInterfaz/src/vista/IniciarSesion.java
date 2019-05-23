@@ -6,6 +6,7 @@
 package vista;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 import controladores.AdministradorJpaController;
 import javafx.scene.Scene;
@@ -24,7 +25,8 @@ public class IniciarSesion extends Stage{
     //private EntityManagerFactory emf = Persistence.createEntityManagerFactory("TallerMecanicoPU");
     private ImageView logo;
     private Label etiquetaLogo;
-    private JFXTextField correo, contrasena;
+    private JFXTextField correo;
+    private JFXPasswordField contrasena;
     private JFXButton iniciarSesion;
     
     
@@ -67,7 +69,7 @@ public class IniciarSesion extends Stage{
         correo.setLayoutX(25);
         correo.setLayoutY(218);
         
-        contrasena = new JFXTextField();
+        contrasena = new JFXPasswordField();
         contrasena.setPromptText("Contraseña");
         contrasena.setLabelFloat(true);
         contrasena.setMinWidth(250);
