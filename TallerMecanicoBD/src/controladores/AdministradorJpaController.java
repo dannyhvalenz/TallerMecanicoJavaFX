@@ -12,7 +12,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import modelo.Administrador;
@@ -22,12 +24,15 @@ import modelo.Administrador;
  * @author dany
  */
 public class AdministradorJpaController implements Serializable {
+    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("TallerMecanicoBDPU");
 
+    public AdministradorJpaController() {
+    }
+    
     public AdministradorJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("TallerMecanicoBDPU");
-
+    
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
@@ -113,7 +118,34 @@ public class AdministradorJpaController implements Serializable {
             em.close();
         }
     }
-
+    
+    public Administrador getAdmin(String correo, String contrasena) { 
+        EntityManager em = getEntityManager();
+        try { 
+            Administrador admin = (Administrador) em.createQuery( "SELECT a from Administrador a where a.correo = :correo and a.contrasena = :contrasena")
+                    .setParameter("correo", correo)
+                    .setParameter("contrasena", contrasena).getSingleResult(); 
+            return admin; 
+        } catch (NoResultException e) { 
+            return null; 
+        } 
+    }
+    
+    public boolean validarAdministrador(String correo, String contrasena){
+        EntityManager em = getEntityManager();
+        try{
+            System.out.println(correo + " - "+ contrasena);
+            TypedQuery<Administrador> query = em.createQuery("SELECT a FROM Administrador a WHERE a.correo = :correo AND a.contrasena = :contrasena", Administrador.class);
+            query.setParameter("correo", correo);
+            query.setParameter("contrasena", contrasena); 
+            Administrador a = query.getSingleResult();
+            return true; 
+        } catch(Exception e){
+            System.out.println(e);
+        } 
+        return false; 
+    }
+    
     public Administrador findAdministrador(Integer id) {
         EntityManager em = getEntityManager();
         try {

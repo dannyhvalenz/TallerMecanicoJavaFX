@@ -7,17 +7,14 @@ package vista;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import controladores.AdministradorJpaController;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import modelo.Administrador;
 
 /**
  *
@@ -87,18 +84,24 @@ public class IniciarSesion extends Stage{
         iniciarSesion.getStyleClass().add("iniciarSesion");
         iniciarSesion.setOnAction(evt -> {
             // TODO: VALIDACION
-//            if(validarUsuario()){
+            if(validarUsuario()){
               MostrarClientes clientes = new MostrarClientes();
               clientes.show();
               this.hide();
+            }
 //            }else {
-//            
+//            Alerta correo o contrasena incorrecto
 //            }
         });
     }
     
     private boolean validarUsuario() {
-        boolean valido = true;
+        boolean valido = false;
+        AdministradorJpaController controlador = new AdministradorJpaController();
+        Administrador a = controlador.getAdmin(correo.getText(), contrasena.getText());
+        if (a != null){
+            valido = true;
+        }
         return valido;
     }
     
