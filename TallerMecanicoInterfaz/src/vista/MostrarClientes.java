@@ -146,11 +146,13 @@ public class MostrarClientes extends Stage{
             this.setWidth(333);
             this.centerOnScreen();
         } else {
-            Alert dialogo = new Alert(Alert.AlertType.ERROR);
-            dialogo.setTitle("Error");
-            dialogo.setHeaderText("Campos Vacios");
-            dialogo.setContentText(errores);
-            dialogo.show();
+            
+            mostrarAlerta(errores, "Campos Vacios");
+//            Alert dialogo = new Alert(Alert.AlertType.ERROR);
+//            dialogo.setTitle("Error");
+//            dialogo.setHeaderText("Campos Vacios");
+//            dialogo.setContentText(errores);
+//            dialogo.show();
             valido = false;
         }
         
@@ -541,8 +543,8 @@ public class MostrarClientes extends Stage{
         button.getStyleClass().add("btnAlerta");
         content.setActions(button);
         root.getChildren().add(stackPane);
-        AnchorPane.setTopAnchor(stackPane, (root.getHeight() - content.getPrefHeight()) / 2);
-        AnchorPane.setLeftAnchor(stackPane, (root.getWidth() - content.getPrefWidth()) / 2);
+        AnchorPane.setTopAnchor(stackPane, (500 - content.getPrefHeight()) / 2);
+        AnchorPane.setLeftAnchor(stackPane, (panelEditar.getWidth() + (panelEditar.getWidth() - content.getPrefWidth()) / 2));
         dialog.show();  
     }
     
