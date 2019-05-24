@@ -35,7 +35,8 @@ and open the template in the editor.
 
 .administrarCliente {
     -fx-text-fill: #ffffff;
-    -fx-font-size: 20pt;
+    -fx-font-size: 40pt;
+    -fx-font-weight: bold;
     -fx-font-family: Futura;
 }
 
@@ -45,7 +46,7 @@ and open the template in the editor.
 }
 
 .panelCliente {
-    -fx-background-color: #1565c0;
+    -fx-background-color: #1F54B7;
 }
 
 .label {
@@ -54,16 +55,16 @@ and open the template in the editor.
 }
 
 .agregar {
-    -fx-background-color: #FFC107;
-    -fx-background-radius: 50;
-    -fx-text-fill: #ffffff;
-    -fx-font-size: 20pt;
+    
+    -fx-background-radius: 1000;
+    -fx-border-radius: 1000;
 }
 
 .barraBusqueda {
     -fx-background-color: #FFFFFF;
     -fx-border-radius: 30;
     -fx-border-width: 5;
+    -fx-background-radius: 5;
 }
 
 .panelBusqueda {
@@ -81,6 +82,11 @@ and open the template in the editor.
     -fx-font-family: Futura;
 }
 
+.Buscar {
+    -fx-font-family: Futura;
+    -fx-font-size: 11pt;
+}
+
 .logo {
     -fx-font-family: Futura;
     -fx-text-fill: #424242;
@@ -89,8 +95,8 @@ and open the template in the editor.
 }
 
 .iniciarSesion {
-    -fx-background-color: #F36917;
+    -fx-background-color: linear-gradient(to right, #0C6BC7, #053995);
     -fx-text-fill: white;
-    -fx-font-size: 14pt;
+    -fx-font-size: 16pt;
     -fx-font-family: Futura;
 }

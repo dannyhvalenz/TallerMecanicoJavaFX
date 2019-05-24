@@ -5,23 +5,19 @@
  */
 package vista;
 
-import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 import controladores.AdministradorJpaController;
-import java.util.Optional;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
@@ -33,7 +29,6 @@ import modelo.Administrador;
  * @author dany
  */
 public class IniciarSesion extends Stage{
-    //private EntityManagerFactory emf = Persistence.createEntityManagerFactory("TallerMecanicoPU");
     private ImageView logo;
     private Label etiquetaLogo;
     private JFXTextField correo;
@@ -50,7 +45,7 @@ public class IniciarSesion extends Stage{
 
     private void configurarPanel() {
         root = new AnchorPane();
-        Scene scene = new Scene(root,300,500); 
+        Scene scene = new Scene(root,333,500); 
         scene.getStylesheets().add(getClass().getResource("/vista/styles.css").toExternalForm());
         root.getStyleClass().add("background");
         setScene(scene);
@@ -62,39 +57,40 @@ public class IniciarSesion extends Stage{
 
     private void crearComponentes() {
         logo = new ImageView();
-        logo.setImage(new Image("/resources/car.png"));
-        logo.setLayoutX(30);
-        logo.setLayoutY(20);
-        logo.setFitHeight(122);
+        logo.setImage(new Image("/resources/Logo.png"));
+        logo.setLayoutX(42);
+        logo.setLayoutY(52);
+        logo.setFitHeight(103);
         logo.setFitWidth(250);
         
         etiquetaLogo = new Label("Taller Mecanico");
         etiquetaLogo.getStyleClass().add("logo");
-        etiquetaLogo.setLayoutX(20);
-        etiquetaLogo.setLayoutY(137);
+        etiquetaLogo.setLayoutX(32);
+        etiquetaLogo.setLayoutY(163);
         
         correo = new JFXTextField();
         correo.setPromptText("Correo Electronico");
         correo.setLabelFloat(true);
         correo.setMinWidth(250);
         correo.getStyleClass().add("TextField");
-        correo.setLayoutX(25);
-        correo.setLayoutY(218);
+        correo.setLayoutX(42);
+        correo.setLayoutY(248);
         
         contrasena = new JFXPasswordField();
         contrasena.setPromptText("Contraseña");
         contrasena.setLabelFloat(true);
         contrasena.setMinWidth(250);
         contrasena.getStyleClass().add("TextField");
-        contrasena.setLayoutX(25);
-        contrasena.setLayoutY(308);
+        contrasena.setLayoutX(42);
+        contrasena.setLayoutY(325);
+        
         
         iniciarSesion = new JFXButton();
         iniciarSesion.setText("Iniciar Sesion");
         iniciarSesion.setMinHeight(40);
         iniciarSesion.setMinWidth(200);
-        iniciarSesion.setLayoutX(50);
-        iniciarSesion.setLayoutY(399);
+        iniciarSesion.setLayoutX(67);
+        iniciarSesion.setLayoutY(408);
         iniciarSesion.getStyleClass().add("iniciarSesion");
         iniciarSesion.setOnAction(evt -> {
             if (validarCampos()){
@@ -112,7 +108,7 @@ public class IniciarSesion extends Stage{
     }
     
     private boolean validarCampos(){
-        return correo.getText() != null && contrasena.getText() != null;
+        return !correo.getText().isEmpty() &&  !contrasena.getText().isEmpty();
     }
     
     private boolean validarUsuario() {
@@ -135,11 +131,8 @@ public class IniciarSesion extends Stage{
         stackPane.autosize();
         JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
         JFXButton button = new JFXButton("Okay");
-        button.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                        dialog.close();
-                }
+        button.setOnAction((ActionEvent event) -> {
+            dialog.close();
         });
         button.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
         button.setPrefHeight(32);
