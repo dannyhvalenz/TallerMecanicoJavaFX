@@ -124,24 +124,11 @@ public class IniciarSesion extends Stage{
         }
         return valido;
     }
-
-    private void mostrarMensaje(String mensaje) {
-        rootPane = new StackPane();
-        JFXDialogLayout dialogLayout = new JFXDialogLayout();
-        JFXButton boton = new JFXButton("Okay");
-        JFXDialog dialogo = new JFXDialog(rootPane, dialogLayout, JFXDialog.DialogTransition.TOP);
-        boton.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent mouseEvent ) -> {
-            dialogo.close();
-        });
-        dialogLayout.setBody(new Label(mensaje));
-        dialogLayout.setActions(boton);
-        dialogo.show();
-    }
-    
     
     public void mostrarAlerta(String mensaje, String titulo){
         JFXDialogLayout content = new JFXDialogLayout();
         content.setHeading(new Text(titulo));
+        content.getStyleClass().add("mensaje");
         content.setBody(new Text(mensaje));
         content.setPrefSize(250, 100);
         StackPane stackPane = new StackPane();
@@ -157,7 +144,6 @@ public class IniciarSesion extends Stage{
         button.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
         button.setPrefHeight(32);
         button.getStyleClass().add("btnAlerta");
-        //button.setStyle(dialogBtnStyle);
         content.setActions(button);
         root.getChildren().add(stackPane);
         AnchorPane.setTopAnchor(stackPane, (root.getHeight() - content.getPrefHeight()) / 2);
