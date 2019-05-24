@@ -12,6 +12,11 @@ and open the template in the editor.
     -fx-background-color: white;
 }
 
+.btnAlerta {
+    -fx-background-color: #1565c0; 
+    -fx-text-fill: #FFFFFF;
+}
+
 .aceptar {
     -fx-border-color: #77B530; 
     -fx-border-radius: 50; 

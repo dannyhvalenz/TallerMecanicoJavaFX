@@ -5,15 +5,26 @@
  */
 package vista;
 
+import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 import controladores.AdministradorJpaController;
+import java.util.Optional;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import modelo.Administrador;
 
@@ -28,7 +39,8 @@ public class IniciarSesion extends Stage{
     private JFXTextField correo;
     private JFXPasswordField contrasena;
     private JFXButton iniciarSesion;
-    
+    private AnchorPane root;
+    private StackPane rootPane;
     
     public IniciarSesion() {
         configurarPanel();
@@ -37,7 +49,7 @@ public class IniciarSesion extends Stage{
     }
 
     private void configurarPanel() {
-        AnchorPane root = new AnchorPane();
+        root = new AnchorPane();
         Scene scene = new Scene(root,300,500); 
         scene.getStylesheets().add(getClass().getResource("/vista/styles.css").toExternalForm());
         root.getStyleClass().add("background");
@@ -85,16 +97,22 @@ public class IniciarSesion extends Stage{
         iniciarSesion.setLayoutY(399);
         iniciarSesion.getStyleClass().add("iniciarSesion");
         iniciarSesion.setOnAction(evt -> {
-            // TODO: VALIDACION
-            if(validarUsuario()){
-              MostrarClientes clientes = new MostrarClientes();
-              clientes.show();
-              this.hide();
+            if (validarCampos()){
+                if(validarUsuario()){
+                MostrarClientes clientes = new MostrarClientes();
+                clientes.show();
+                this.hide();
+                } else {
+                    mostrarAlerta("Correo o contraseña incorrectos", "Datos inválidos");
+                }
+            } else {
+                mostrarAlerta("Hay campos vacios", "Campos vacíos");
             }
-//            }else {
-//            Alerta correo o contrasena incorrecto
-//            }
         });
+    }
+    
+    private boolean validarCampos(){
+        return correo.getText() != null && contrasena.getText() != null;
     }
     
     private boolean validarUsuario() {
@@ -106,7 +124,46 @@ public class IniciarSesion extends Stage{
         }
         return valido;
     }
+
+    private void mostrarMensaje(String mensaje) {
+        rootPane = new StackPane();
+        JFXDialogLayout dialogLayout = new JFXDialogLayout();
+        JFXButton boton = new JFXButton("Okay");
+        JFXDialog dialogo = new JFXDialog(rootPane, dialogLayout, JFXDialog.DialogTransition.TOP);
+        boton.addEventHandler(MouseEvent.MOUSE_CLICKED, (MouseEvent mouseEvent ) -> {
+            dialogo.close();
+        });
+        dialogLayout.setBody(new Label(mensaje));
+        dialogLayout.setActions(boton);
+        dialogo.show();
+    }
     
+    
+    public void mostrarAlerta(String mensaje, String titulo){
+        JFXDialogLayout content = new JFXDialogLayout();
+        content.setHeading(new Text(titulo));
+        content.setBody(new Text(mensaje));
+        content.setPrefSize(250, 100);
+        StackPane stackPane = new StackPane();
+        stackPane.autosize();
+        JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
+        JFXButton button = new JFXButton("Okay");
+        button.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                        dialog.close();
+                }
+        });
+        button.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
+        button.setPrefHeight(32);
+        button.getStyleClass().add("btnAlerta");
+        //button.setStyle(dialogBtnStyle);
+        content.setActions(button);
+        root.getChildren().add(stackPane);
+        AnchorPane.setTopAnchor(stackPane, (root.getHeight() - content.getPrefHeight()) / 2);
+        AnchorPane.setLeftAnchor(stackPane, (root.getWidth() - content.getPrefWidth()) / 2);
+        dialog.show();  
+    }
 }
 
    

@@ -131,21 +131,6 @@ public class AdministradorJpaController implements Serializable {
         } 
     }
     
-    public boolean validarAdministrador(String correo, String contrasena){
-        EntityManager em = getEntityManager();
-        try{
-            System.out.println(correo + " - "+ contrasena);
-            TypedQuery<Administrador> query = em.createQuery("SELECT a FROM Administrador a WHERE a.correo = :correo AND a.contrasena = :contrasena", Administrador.class);
-            query.setParameter("correo", correo);
-            query.setParameter("contrasena", contrasena); 
-            Administrador a = query.getSingleResult();
-            return true; 
-        } catch(Exception e){
-            System.out.println(e);
-        } 
-        return false; 
-    }
-    
     public Administrador findAdministrador(Integer id) {
         EntityManager em = getEntityManager();
         try {
