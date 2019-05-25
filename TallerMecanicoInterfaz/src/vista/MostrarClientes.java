@@ -8,7 +8,11 @@ import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 import controladores.ClienteJpaController;
+import controladores.exceptions.IllegalOrphanException;
+import controladores.exceptions.NonexistentEntityException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
@@ -47,7 +51,7 @@ public class MostrarClientes extends Stage{
     private Label administrarCliente, administrarClienteConsultar;
     
     private FadeTransition abrirConsultar;
-    private boolean agregar = true;
+    private boolean editarCliente = false;
     private String nombre, telefono, direccion, correo, nombreAdministrador;
     private int idCliente;
     
@@ -175,24 +179,15 @@ public class MostrarClientes extends Stage{
         panelConsultar.setPrefWidth(333);
         panelConsultar.setVisible(false);
         
-        // Nombre
-        tfNombreConsultar = new JFXTextField();
-        tfNombreConsultar.setPromptText("Nombre del cliente");
-        tfNombreConsultar.setLabelFloat(true);
-        tfNombreConsultar.setLayoutX(40);
-        tfNombreConsultar.setLayoutY(177);
-        tfNombreConsultar.setPrefHeight(30);
-        tfNombreConsultar.setPrefWidth(250);
-        tfNombreConsultar.getStyleClass().add("TextField");
-        
         // Correo
         tfCorreoConsultar = new JFXTextField();
         tfCorreoConsultar.setPromptText("Correo electronico");
         tfCorreoConsultar.setLabelFloat(true);
         tfCorreoConsultar.setLayoutX(40);
-        tfCorreoConsultar.setLayoutY(238);
+        tfCorreoConsultar.setLayoutY(214);
         tfCorreoConsultar.setPrefHeight(30);
         tfCorreoConsultar.setPrefWidth(250);
+        tfCorreoConsultar.setEditable(false);
         tfCorreoConsultar.getStyleClass().add("TextField");
         
         // Telefono
@@ -200,9 +195,10 @@ public class MostrarClientes extends Stage{
         tfTelefonoConsultar.setPromptText("Telefono");
         tfTelefonoConsultar.setLabelFloat(true);
         tfTelefonoConsultar.setLayoutX(40);
-        tfTelefonoConsultar.setLayoutY(298);
+        tfTelefonoConsultar.setLayoutY(279);
         tfTelefonoConsultar.setPrefHeight(30);
         tfTelefonoConsultar.setPrefWidth(250);
+        tfTelefonoConsultar.setEditable(false);
         tfTelefonoConsultar.setOnKeyTyped(e -> {
             try {
                 char input = e.getCharacter().charAt(0);
@@ -220,9 +216,10 @@ public class MostrarClientes extends Stage{
         tfDireccionConsultar.setPromptText("Direccion");
         tfDireccionConsultar.setLabelFloat(true);
         tfDireccionConsultar.setLayoutX(40);
-        tfDireccionConsultar.setLayoutY(361);
+        tfDireccionConsultar.setLayoutY(344);
         tfDireccionConsultar.setPrefHeight(60);
         tfDireccionConsultar.setPrefWidth(250);
+        tfDireccionConsultar.setEditable(false);
         tfDireccionConsultar.getStyleClass().add("TextField");
         
         crearPanelClienteConsultar();
@@ -240,7 +237,7 @@ public class MostrarClientes extends Stage{
             this.hide();
         });
         
-        panelConsultar.getChildren().addAll(panelClienteConsultar, tfNombreConsultar, tfCorreoConsultar, tfTelefonoConsultar, tfDireccionConsultar, btnVerAutos);
+        panelConsultar.getChildren().addAll(panelClienteConsultar, tfCorreoConsultar, tfTelefonoConsultar, tfDireccionConsultar, btnVerAutos);
     }
 
     private void crearPanelEditarCliente() {
@@ -322,7 +319,7 @@ public class MostrarClientes extends Stage{
                 
                 ClienteJpaController controlador = new ClienteJpaController();
                 
-                if (agregar == true){
+                if (editarCliente == false){
                     try {
                         Cliente c = new Cliente (nombre, telefono, direccion, correo);
                         controlador.create(c);
@@ -352,9 +349,27 @@ public class MostrarClientes extends Stage{
         btnCancelar.setPrefWidth(126);
         
         btnCancelar.setOnAction(evt -> {
-            panelEditar.setVisible(false);
-            this.setWidth(333);
-            this.centerOnScreen();
+            if (editarCliente == true){
+                panelConsultar.setVisible(true);
+                panelEditar.setVisible(false);
+                this.centerOnScreen();
+                
+                tfDireccionConsultar.setText(tfDireccion.getText());
+                tfTelefonoConsultar.setText(tfTelefono.getText());
+                tfCorreoConsultar.setText(tfCorreo.getText());
+                nombre = tfNombre.getText();
+                nombre = separarNombre(nombre);
+                nombre =  nombre.replaceAll("\\s+", "\n");
+                administrarClienteConsultar.setText(nombre);
+            } else {
+                panelEditar.setVisible(false);
+                this.setWidth(333);
+                this.centerOnScreen();
+            }
+            tfNombre.setText("");
+            tfTelefono.setText("");
+            tfDireccion.setText("");
+            tfCorreo.setText("");
         });
         
         crearPanelCliente();
@@ -396,26 +411,28 @@ public class MostrarClientes extends Stage{
         btnEditar.setOnAction(evt -> {
             panelEditar.setVisible(true);
             panelConsultar.setVisible(false);
-            btnEditar.setVisible(false);
-            btnEliminar.setVisible(false);
+//            btnEditar.setVisible(false);
+//            btnEliminar.setVisible(false);
             
-            tfNombre.setText(administrarCliente.getText());
+            nombre = separarNombre(nombre);
+            tfNombre.setText(nombre);
             tfTelefono.setText(tfTelefonoConsultar.getText());
             tfCorreo.setText(tfCorreoConsultar.getText());
             tfDireccion.setText(tfDireccionConsultar.getText());
+            editarCliente = true;
         });
         
         ImageView imageEliminar = new ImageView();
         imageEliminar.setImage(new Image("/resources/Eliminar.png"));
         imageEliminar.setFitHeight(20);
-        imageEliminar.setFitWidth(20);
+        imageEliminar.setFitWidth(15);
         
         btnEliminar = new JFXButton();
         btnEliminar.setGraphic(imageEliminar);
         btnEliminar.setLayoutX(290);
         btnEliminar.setLayoutY(120);
         btnEliminar.setPrefHeight(30);
-        btnEliminar.setPrefWidth(30);
+        btnEliminar.setPrefWidth(25);
         btnEliminar.setOnAction(evt -> {
             mostrarAlertaEliminar();
         });
@@ -531,7 +548,7 @@ public class MostrarClientes extends Stage{
             panelConsultar.setVisible(false);
             btnEliminar.setVisible(false);
             btnEditar.setVisible(false);
-            administrarCliente.setText("Agregar Cliente");
+            administrarCliente.setText("Agregar \n Cliente");
             //animacionAbrirConsultar();
             //abrirConsultar.play();
         });
@@ -547,7 +564,6 @@ public class MostrarClientes extends Stage{
         clientList.setOnMouseClicked((MouseEvent click) -> {
             if (click.getClickCount() == 2) {
                 Cliente c = clientes.get(clientList.getSelectionModel().getSelectedIndex());
-                System.out.println(c.getNombre());
                 this.setWidth(666);
                 this.centerOnScreen();
                 panelConsultar.setVisible(true);
@@ -555,14 +571,13 @@ public class MostrarClientes extends Stage{
                 
                 // Recuperar cliente
                 idCliente = c.getId();
-                tfNombreConsultar.setText(c.getNombre());
                 tfTelefonoConsultar.setText(c.getTelefono());
                 tfDireccionConsultar.setText(c.getDireccion());
                 tfCorreoConsultar.setText(c.getCorreo());
                 
+                idCliente = c.getId();
                 nombre = c.getNombre();
                 nombre =  nombre.replaceAll("\\s+", "\n");
-                System.out.println("Nombre del label "+ nombre);
                 administrarClienteConsultar.setText(nombre);
             } 
         });
@@ -571,38 +586,35 @@ public class MostrarClientes extends Stage{
         cargarClientes("");
     }
     
-    private void animacionAbrirConsultar(){
-        
-    }
-    
-    private void animacionPane(String nombrePanel, String accion) {
-        
-        if (nombrePanel.equals("Consultar")){
-            if (accion.equals("abrir")){
-                
-                
-            } else if (accion.equals("cerrar")){
-                TranslateTransition cerrarConsultar =new TranslateTransition(new Duration(350), panelConsultar);
-                cerrarConsultar.setToX(-(panelConsultar.getWidth()));
-                cerrarConsultar.play();
-            }
-        } else if (nombrePanel.equals("Editar")){
-            if (accion.equals("abrir")){
-                TranslateTransition abrirEditar = new TranslateTransition(new Duration(350), panelEditar);
-                abrirEditar.setToX(0);
-                abrirEditar.play();
-            } else if (accion.equals("cerrar")){
-                TranslateTransition cerrarEditar = new TranslateTransition(new Duration(350), panelEditar);
-                cerrarEditar.setToX(-(panelConsultar.getWidth()));
-                cerrarEditar.play();
+    public String separarNombre(String nombre){
+        String nombre_nuevo = "";
+        for (int i = 0; i < nombre.length(); i++){
+            char c = nombre.charAt(i);
+            if (i >= 1){
+                if(Character.isUpperCase(c)){               
+                    nombre_nuevo = nombre_nuevo + " " + c;
+                } else {
+                    nombre_nuevo = nombre_nuevo + c;
+                }
+            } else {
+                nombre_nuevo = nombre_nuevo + c;
             }
         }
-    }
+        return nombre_nuevo;
+    }               
     
-
     public void mostrarAlerta(String mensaje, String titulo){
         JFXDialogLayout content = new JFXDialogLayout();
-        content.setHeading(new Text(titulo));
+        ImageView error = new ImageView();
+        error.setImage(new Image("/resources/Error.png"));
+        error.setFitHeight(30);
+        error.setFitWidth(30);
+        
+        Label header = new Label();
+        header.setText("  " + titulo);
+        header.setGraphic(error);
+        content.setHeading(header);
+        //content.setHeading(new Text(titulo));
         content.getStyleClass().add("mensaje");
         content.setBody(new Text(mensaje));
         content.setPrefSize(250, 100);
@@ -625,7 +637,17 @@ public class MostrarClientes extends Stage{
     
     public void mostrarAlertaEliminar(){
         JFXDialogLayout content = new JFXDialogLayout();
-        content.setHeading(new Text("Eliminar cliente"));
+        
+        ImageView error = new ImageView();
+        error.setImage(new Image("/resources/Error.png"));
+        error.setFitHeight(30);
+        error.setFitWidth(30);
+        
+        Label header = new Label();
+        header.setText("  Eliminar cliente");
+        header.setGraphic(error);
+        content.setHeading(header);
+        
         content.getStyleClass().add("mensaje");
         content.setBody(new Text("¿Desea eliminar este cliente?"));
         content.setPrefSize(250, 100);
@@ -640,6 +662,14 @@ public class MostrarClientes extends Stage{
             panelConsultar.setVisible(false);
             this.setWidth(333);
             this.centerOnScreen();
+            ClienteJpaController controlador = new ClienteJpaController();
+            try {
+                controlador.destroy(idCliente);
+                cargarClientes("");
+            } catch (Exception ex) {
+                mostrarAlerta("Error de conexión con la base de datos", "Error de conexión");
+                System.out.println(ex);
+            }
         });
         btnSi.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
         btnSi.setPrefHeight(32);

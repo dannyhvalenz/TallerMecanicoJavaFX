@@ -35,7 +35,7 @@ and open the template in the editor.
 
 .administrarCliente {
     -fx-text-fill: #ffffff;
-    -fx-font-size: 40pt;
+    -fx-font-size: 100pt;
     -fx-font-weight: bold;
     -fx-font-family: Futura;
 }
