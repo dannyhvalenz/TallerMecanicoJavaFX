@@ -36,6 +36,7 @@ public class IniciarSesion extends Stage{
     private JFXButton iniciarSesion;
     private AnchorPane root;
     private StackPane rootPane;
+    private String nombreAdmin;
     
     public IniciarSesion() {
         configurarPanel();
@@ -95,7 +96,7 @@ public class IniciarSesion extends Stage{
         iniciarSesion.setOnAction(evt -> {
             if (validarCampos()){
                 if(validarUsuario()){
-                MostrarClientes clientes = new MostrarClientes();
+                MostrarClientes clientes = new MostrarClientes(nombreAdmin);
                 clientes.show();
                 this.hide();
                 } else {
@@ -116,6 +117,7 @@ public class IniciarSesion extends Stage{
         AdministradorJpaController controlador = new AdministradorJpaController();
         Administrador a = controlador.getAdmin(correo.getText(), contrasena.getText());
         if (a != null){
+            nombreAdmin = a.getNombre();
             valido = true;
         }
         return valido;

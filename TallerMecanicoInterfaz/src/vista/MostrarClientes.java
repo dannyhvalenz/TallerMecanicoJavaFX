@@ -1,13 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package vista;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
+import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
@@ -17,7 +13,6 @@ import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -47,17 +42,25 @@ public class MostrarClientes extends Stage{
     private JFXTextField tfNombreConsultar, tfCorreoConsultar, tfTelefonoConsultar;
     private JFXTextArea tfDireccionConsultar;
     
-    private AnchorPane root, panelEditar, panelCliente, panelBusqueda, panelConsultar;
-    private JFXButton btnAgregar;
-    private Label administrarCliente;
+    private AnchorPane root, panelEditar, panelCliente, panelBusqueda, panelConsultar, panelClienteConsultar;
+    private JFXButton btnAgregar, btnEditar, btnEliminar;
+    private Label administrarCliente, administrarClienteConsultar;
     
     private FadeTransition abrirConsultar;
     private boolean agregar = true;
-    private String nombre, telefono, direccion, correo;
+    private String nombre, telefono, direccion, correo, nombreAdministrador;
     private int idCliente;
     
-    public MostrarClientes(){
+    public MostrarClientes(String nombreAdministrador){
+        this.nombreAdministrador = nombreAdministrador;
         configurarPanel(); 
+        buscarCliente();
+    }
+    
+    private void buscarCliente(){
+        tfBuscar.setOnKeyTyped(evt -> {
+            cargarClientes(tfBuscar.getText());
+        });
     }
 
     private void configurarPanel() {
@@ -65,7 +68,7 @@ public class MostrarClientes extends Stage{
         Scene scene = new Scene(root,333,500); 
         scene.getStylesheets().add(getClass().getResource("/vista/styles.css").toExternalForm());
         setScene(scene);
-
+        
         crearListaClientes();
         crearBarraBusqueda();
         crearPanelConsultarCliente();
@@ -85,8 +88,8 @@ public class MostrarClientes extends Stage{
             for (Cliente c : clientes) {
                     try {
                         Label lbl = new Label(c.getNombre());
-                        //lbl.setGraphic(new ImageView(new Image(
-                                //getClass().getResourceAsStream("/resources/Avatar_Negro.png"))));
+                        lbl.setGraphic(new ImageView(new Image(
+                                getClass().getResourceAsStream("/resources/Avatar_Negro.png"))));
                         lbl.getStyleClass().add("label");
                         clientList.getItems().add(lbl);
                     } catch (Exception ex) {
@@ -96,15 +99,25 @@ public class MostrarClientes extends Stage{
                 }
             System.out.println("Elementos recuperados: "+i);
         } else {
-            //clientes = controlador.findCliente(nombreCliente);
+            clientes = controlador.findClientes(nombreCliente);
+            int i = 0;
+            for (Cliente c : clientes) {
+                    try {
+                        Label lbl = new Label(c.getNombre());
+                        lbl.setGraphic(new ImageView(new Image(
+                                getClass().getResourceAsStream("/resources/Avatar_Negro.png"))));
+                        lbl.getStyleClass().add("label");
+                        clientList.getItems().add(lbl);
+                    } catch (Exception ex) {
+                        System.err.println("Error: " + ex);
+                    }
+                    i++;
+                }
+            System.out.println("Elementos recuperados: "+i);
         }
         
     }
     
-    public void busquedaActiva(KeyEvent e) {
-        cargarClientes(tfBuscar.getText());
-    }
-
     private boolean datosInvalidos() {
         return tfNombre.getText().isEmpty() || tfCorreo.getText().isEmpty() || tfTelefono.getText().isEmpty()
                 || tfDireccion.getText().isEmpty();
@@ -146,13 +159,7 @@ public class MostrarClientes extends Stage{
             this.setWidth(333);
             this.centerOnScreen();
         } else {
-            
             mostrarAlerta(errores, "Campos Vacios");
-//            Alert dialogo = new Alert(Alert.AlertType.ERROR);
-//            dialogo.setTitle("Error");
-//            dialogo.setHeaderText("Campos Vacios");
-//            dialogo.setContentText(errores);
-//            dialogo.show();
             valido = false;
         }
         
@@ -218,7 +225,7 @@ public class MostrarClientes extends Stage{
         tfDireccionConsultar.setPrefWidth(250);
         tfDireccionConsultar.getStyleClass().add("TextField");
         
-        crearPanelCliente("Administrar \n Cliente");
+        crearPanelClienteConsultar();
         
         JFXButton btnVerAutos = new JFXButton();
         btnVerAutos.setLayoutX(0);
@@ -233,7 +240,7 @@ public class MostrarClientes extends Stage{
             this.hide();
         });
         
-        panelConsultar.getChildren().addAll(panelCliente, tfNombreConsultar, tfCorreoConsultar, tfTelefonoConsultar, tfDireccionConsultar, btnVerAutos);
+        panelConsultar.getChildren().addAll(panelClienteConsultar, tfNombreConsultar, tfCorreoConsultar, tfTelefonoConsultar, tfDireccionConsultar, btnVerAutos);
     }
 
     private void crearPanelEditarCliente() {
@@ -302,11 +309,9 @@ public class MostrarClientes extends Stage{
         imageAceptar.setFitHeight(28);
         imageAceptar.setFitWidth(126);
         btnAceptar.setGraphic(imageAceptar);
-        //btnAceptar.setText("Aceptar");
         btnAceptar.setLayoutX(174);
         btnAceptar.setLayoutY(457);
         btnAceptar.setPrefWidth(126);
-        //btnAceptar.getStyleClass().add("aceptar");
         
         btnAceptar.setOnAction(evt -> {
             if (validarDatos()) {
@@ -342,11 +347,9 @@ public class MostrarClientes extends Stage{
         imageCancelar.setFitHeight(28);
         imageCancelar.setFitWidth(126);
         btnCancelar.setGraphic(imageCancelar);
-        //btnCancelar.setText("Cancelar");
         btnCancelar.setLayoutX(34);
         btnCancelar.setLayoutY(457);
         btnCancelar.setPrefWidth(126);
-        //btnCancelar.getStyleClass().add("cancelar");
         
         btnCancelar.setOnAction(evt -> {
             panelEditar.setVisible(false);
@@ -354,12 +357,73 @@ public class MostrarClientes extends Stage{
             this.centerOnScreen();
         });
         
-        crearPanelCliente("Administrar \n Cliente");
-        
+        crearPanelCliente();
         panelEditar.getChildren().addAll(panelCliente, tfNombre, tfCorreo, tfTelefono, tfDireccion, btnAceptar, btnCancelar);
     }
 
-    private void crearPanelCliente(String accionAdministrar) {
+    private void crearPanelClienteConsultar() {
+        panelClienteConsultar = new AnchorPane();
+        panelClienteConsultar.setLayoutX(0);
+        panelClienteConsultar.setLayoutY(0);
+        panelClienteConsultar.setPrefHeight(143);
+        panelClienteConsultar.setPrefWidth(333);
+        panelClienteConsultar.getStyleClass().add("panelCliente");
+        
+        administrarClienteConsultar = new Label();
+        administrarClienteConsultar.setLayoutX(140);
+        administrarClienteConsultar.setLayoutY(38);
+        administrarClienteConsultar.getStyleClass().add("administrarCliente");
+        administrarClienteConsultar.setText(nombre);
+        
+        ImageView imageCliente = new ImageView();
+        imageCliente.setImage(new Image("/resources/Avatar_Blanco.png"));
+        imageCliente.setLayoutX(22);
+        imageCliente.setLayoutY(24);
+        imageCliente.setFitHeight(96);
+        imageCliente.setFitWidth(96);
+        
+        ImageView imageEditar = new ImageView();
+        imageEditar.setImage(new Image("/resources/Editar.png"));
+        imageEditar.setFitHeight(20);
+        imageEditar.setFitWidth(20);
+        
+        btnEditar = new JFXButton();
+        btnEditar.setGraphic(imageEditar);
+        btnEditar.setLayoutX(249);
+        btnEditar.setLayoutY(120);
+        btnEditar.setPrefHeight(30);
+        btnEditar.setPrefWidth(30);
+        btnEditar.setOnAction(evt -> {
+            panelEditar.setVisible(true);
+            panelConsultar.setVisible(false);
+            btnEditar.setVisible(false);
+            btnEliminar.setVisible(false);
+            
+            tfNombre.setText(administrarCliente.getText());
+            tfTelefono.setText(tfTelefonoConsultar.getText());
+            tfCorreo.setText(tfCorreoConsultar.getText());
+            tfDireccion.setText(tfDireccionConsultar.getText());
+        });
+        
+        ImageView imageEliminar = new ImageView();
+        imageEliminar.setImage(new Image("/resources/Eliminar.png"));
+        imageEliminar.setFitHeight(20);
+        imageEliminar.setFitWidth(20);
+        
+        btnEliminar = new JFXButton();
+        btnEliminar.setGraphic(imageEliminar);
+        btnEliminar.setLayoutX(290);
+        btnEliminar.setLayoutY(120);
+        btnEliminar.setPrefHeight(30);
+        btnEliminar.setPrefWidth(30);
+        btnEliminar.setOnAction(evt -> {
+            mostrarAlertaEliminar();
+        });
+        
+        panelClienteConsultar.getChildren().addAll(administrarClienteConsultar, imageCliente, btnEditar, btnEliminar);   
+    }
+    
+    private void crearPanelCliente() {
         panelCliente = new AnchorPane();
         panelCliente.setLayoutX(0);
         panelCliente.setLayoutY(0);
@@ -371,7 +435,7 @@ public class MostrarClientes extends Stage{
         administrarCliente.setLayoutX(140);
         administrarCliente.setLayoutY(38);
         administrarCliente.getStyleClass().add("administrarCliente");
-        administrarCliente.setText(accionAdministrar);
+        administrarCliente.setText("Administrar \n Cliente");
         
         ImageView imageCliente = new ImageView();
         imageCliente.setImage(new Image("/resources/Avatar_Blanco.png"));
@@ -381,6 +445,7 @@ public class MostrarClientes extends Stage{
         imageCliente.setFitWidth(96);
         
         panelCliente.getChildren().addAll(administrarCliente, imageCliente);
+        
     }
 
     private void crearBarraBusqueda() {
@@ -439,6 +504,11 @@ public class MostrarClientes extends Stage{
         barraBusqueda.getChildren().addAll(tfBuscar, imageBuscar);
         panelBusqueda.getChildren().addAll(barraBusqueda, btnSalir);
     }
+    
+    void cerrarDrawer(MouseEvent event, Drawer drawer) {
+        drawer.close();
+        drawer.setMouseTransparent(true);
+    }
 
     private void crearBotonAgregarCliente() {
         ImageView imageAgregar = new ImageView();
@@ -459,6 +529,8 @@ public class MostrarClientes extends Stage{
             this.centerOnScreen();
             panelEditar.setVisible(true);
             panelConsultar.setVisible(false);
+            btnEliminar.setVisible(false);
+            btnEditar.setVisible(false);
             administrarCliente.setText("Agregar Cliente");
             //animacionAbrirConsultar();
             //abrirConsultar.play();
@@ -488,7 +560,10 @@ public class MostrarClientes extends Stage{
                 tfDireccionConsultar.setText(c.getDireccion());
                 tfCorreoConsultar.setText(c.getCorreo());
                 
-                crearPanelCliente(c.getNombre());
+                nombre = c.getNombre();
+                nombre =  nombre.replaceAll("\\s+", "\n");
+                System.out.println("Nombre del label "+ nombre);
+                administrarClienteConsultar.setText(nombre);
             } 
         });
    
@@ -542,6 +617,45 @@ public class MostrarClientes extends Stage{
         button.setPrefHeight(32);
         button.getStyleClass().add("btnAlerta");
         content.setActions(button);
+        root.getChildren().add(stackPane);
+        AnchorPane.setTopAnchor(stackPane, (500 - content.getPrefHeight()) / 2);
+        AnchorPane.setLeftAnchor(stackPane, (panelEditar.getWidth() + (panelEditar.getWidth() - content.getPrefWidth()) / 2));
+        dialog.show();  
+    }
+    
+    public void mostrarAlertaEliminar(){
+        JFXDialogLayout content = new JFXDialogLayout();
+        content.setHeading(new Text("Eliminar cliente"));
+        content.getStyleClass().add("mensaje");
+        content.setBody(new Text("¿Desea eliminar este cliente?"));
+        content.setPrefSize(250, 100);
+        StackPane stackPane = new StackPane();
+        stackPane.autosize();
+        JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
+        JFXButton btnSi = new JFXButton("Si");
+        btnSi.setOnAction((ActionEvent event) -> {
+            // TODO: Eliminar cliente
+            System.out.println("Cliente eliminado");
+            dialog.close();
+            panelConsultar.setVisible(false);
+            this.setWidth(333);
+            this.centerOnScreen();
+        });
+        btnSi.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
+        btnSi.setPrefHeight(32);
+        btnSi.setPrefWidth(50);
+        btnSi.getStyleClass().add("btnAlerta");
+        
+        JFXButton btnNo = new JFXButton("No");
+        btnNo.setOnAction((ActionEvent event) -> {
+            dialog.close();
+        });
+        btnNo.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
+        btnNo.setPrefHeight(32);
+        btnNo.setPrefWidth(50);
+        btnNo.getStyleClass().add("btnAlerta");
+        
+        content.setActions(btnSi, btnNo);
         root.getChildren().add(stackPane);
         AnchorPane.setTopAnchor(stackPane, (500 - content.getPrefHeight()) / 2);
         AnchorPane.setLeftAnchor(stackPane, (panelEditar.getWidth() + (panelEditar.getWidth() - content.getPrefWidth()) / 2));
