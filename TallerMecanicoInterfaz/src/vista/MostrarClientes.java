@@ -320,20 +320,29 @@ public class MostrarClientes extends Stage{
                 ClienteJpaController controlador = new ClienteJpaController();
                 
                 if (editarCliente == false){
+                    System.out.println("Agregar");
                     try {
-                        Cliente c = new Cliente (nombre, telefono, direccion, correo);
-                        controlador.create(c);
+                        idCliente = controlador.getClienteCount() + 1;
+                        System.out.println(idCliente);
+                        Cliente c = new Cliente (idCliente, nombre, telefono, direccion, correo);
+                        controlador.crearCliente(c);
+                        cargarClientes("");
                     } catch (Exception ex){
                         System.out.println(ex);
                     }
                 } else {
+                    System.out.println("Editar");
+                    System.out.println(nombre);
+                    System.out.println(idCliente);
                     try {
                         Cliente c = new Cliente (idCliente, nombre, telefono, direccion, correo);
                         controlador.edit(c);
+                        cargarClientes("");
                     } catch (Exception ex) {
                         System.out.println(ex);
                     }
                 }
+            limpiarCamposEditar();
             }
         });
         
@@ -366,10 +375,7 @@ public class MostrarClientes extends Stage{
                 this.setWidth(333);
                 this.centerOnScreen();
             }
-            tfNombre.setText("");
-            tfTelefono.setText("");
-            tfDireccion.setText("");
-            tfCorreo.setText("");
+            limpiarCamposEditar();
         });
         
         crearPanelCliente();
@@ -502,29 +508,22 @@ public class MostrarClientes extends Stage{
         imageBuscar.setFitWidth(22);
         
         // Boton Salir
-        JFXButton btnSalir = new JFXButton();
-        ImageView imageSalir = new ImageView();
-        imageSalir.setImage(new Image("/resources/Menu.png"));
-        imageSalir.setFitHeight(17);
-        imageSalir.setFitWidth(26);
-        //imageSalir.setLayoutX(20);
-        //imageSalir.setLayoutY(35);
-        btnSalir.setGraphic(imageSalir);
-        btnSalir.setLayoutX(7);
-        btnSalir.setLayoutY(31);
-        btnSalir.setOnAction(evt -> {
+        JFXButton btnDrawer = new JFXButton();
+        ImageView imageDrawer = new ImageView();
+        imageDrawer.setImage(new Image("/resources/Menu.png"));
+        imageDrawer.setFitHeight(17);
+        imageDrawer.setFitWidth(26);
+        btnDrawer.setGraphic(imageDrawer);
+        btnDrawer.setLayoutX(7);
+        btnDrawer.setLayoutY(31);
+        btnDrawer.setOnAction(evt -> {
             IniciarSesion iniciarSesion = new IniciarSesion();
             iniciarSesion.show();
             this.close();
         });
         
         barraBusqueda.getChildren().addAll(tfBuscar, imageBuscar);
-        panelBusqueda.getChildren().addAll(barraBusqueda, btnSalir);
-    }
-    
-    void cerrarDrawer(MouseEvent event, Drawer drawer) {
-        drawer.close();
-        drawer.setMouseTransparent(true);
+        panelBusqueda.getChildren().addAll(barraBusqueda, btnDrawer);
     }
 
     private void crearBotonAgregarCliente() {
@@ -546,11 +545,7 @@ public class MostrarClientes extends Stage{
             this.centerOnScreen();
             panelEditar.setVisible(true);
             panelConsultar.setVisible(false);
-            btnEliminar.setVisible(false);
-            btnEditar.setVisible(false);
             administrarCliente.setText("Agregar \n Cliente");
-            //animacionAbrirConsultar();
-            //abrirConsultar.play();
         });
     }
 
@@ -656,16 +651,15 @@ public class MostrarClientes extends Stage{
         JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
         JFXButton btnSi = new JFXButton("Si");
         btnSi.setOnAction((ActionEvent event) -> {
-            // TODO: Eliminar cliente
             System.out.println("Cliente eliminado");
             dialog.close();
-            panelConsultar.setVisible(false);
-            this.setWidth(333);
-            this.centerOnScreen();
             ClienteJpaController controlador = new ClienteJpaController();
             try {
                 controlador.destroy(idCliente);
                 cargarClientes("");
+                panelConsultar.setVisible(false);
+                this.setWidth(333);
+                this.centerOnScreen();
             } catch (Exception ex) {
                 mostrarAlerta("Error de conexión con la base de datos", "Error de conexión");
                 System.out.println(ex);
@@ -690,6 +684,13 @@ public class MostrarClientes extends Stage{
         AnchorPane.setTopAnchor(stackPane, (500 - content.getPrefHeight()) / 2);
         AnchorPane.setLeftAnchor(stackPane, (panelEditar.getWidth() + (panelEditar.getWidth() - content.getPrefWidth()) / 2));
         dialog.show();  
+    }
+
+    private void limpiarCamposEditar() {
+        tfNombre.setText("");
+        tfCorreo.setText("");
+        tfDireccion.setText("");
+        tfTelefono.setText("");
     }
     
 }

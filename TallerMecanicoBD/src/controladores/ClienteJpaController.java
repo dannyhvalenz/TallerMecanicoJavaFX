@@ -34,7 +34,21 @@ public class ClienteJpaController implements Serializable {
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
-
+    
+    public void crearCliente (Cliente c) {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            em.persist(c);
+            em.getTransaction().commit();
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
+    
     public void create(Cliente cliente) {
         if (cliente.getAutomovilList() == null) {
             cliente.setAutomovilList(new ArrayList<Automovil>());
