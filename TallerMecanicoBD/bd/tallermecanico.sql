@@ -11,7 +11,7 @@
  Target Server Version : 50725
  File Encoding         : 65001
 
- Date: 23/05/2019 17:37:09
+ Date: 26/05/2019 13:26:17
 */
 
 SET NAMES utf8mb4;
@@ -43,13 +43,13 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `Automovil`;
 CREATE TABLE `Automovil` (
-  `id` int(11) NOT NULL,
+  `matricula` varchar(11) NOT NULL,
   `marca` varchar(255) NOT NULL,
-  `modelo` varchar(255) NOT NULL,
+  `modelo` int(4) NOT NULL,
   `linea` varchar(255) NOT NULL,
   `color` varchar(255) NOT NULL,
   `idCliente` int(255) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`matricula`) USING BTREE,
   KEY `idCliente` (`idCliente`),
   CONSTRAINT `idCliente` FOREIGN KEY (`idCliente`) REFERENCES `Cliente` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -58,7 +58,9 @@ CREATE TABLE `Automovil` (
 -- Records of Automovil
 -- ----------------------------
 BEGIN;
-INSERT INTO `Automovil` VALUES (1, 'Ford', '2011', 'Escape', 'Blanca', 1);
+INSERT INTO `Automovil` VALUES ('1', 'Ford', 2011, 'Escape', 'Blanca', 1);
+INSERT INTO `Automovil` VALUES ('2', 'Audi', 2018, 'A3', 'Negro', 2);
+INSERT INTO `Automovil` VALUES ('3', 'Mazda', 2011, 'CX7', 'Blanca', 1);
 COMMIT;
 
 -- ----------------------------
@@ -80,6 +82,7 @@ CREATE TABLE `Cliente` (
 BEGIN;
 INSERT INTO `Cliente` VALUES (1, 'Ruben Hernandez', '2282199050', 'Xalapa, Veracruz', 'ruben@gmail.com');
 INSERT INTO `Cliente` VALUES (2, 'Francisco Valenzuela', '2717117751', 'Murillo Vidal #43 Xalapa, Veracruz', 'francisco@gmail.com');
+INSERT INTO `Cliente` VALUES (3, 'Daniela Hernandez', '2323232323', 'Cordoba', 'danihv@gmail.com');
 COMMIT;
 
 -- ----------------------------
@@ -96,8 +99,7 @@ CREATE TABLE `Reparacion` (
   `descripcionMantenimiento` varchar(255) NOT NULL,
   `idAutomovil` int(255) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `idAutomovil` (`idAutomovil`),
-  CONSTRAINT `idAutomovil` FOREIGN KEY (`idAutomovil`) REFERENCES `Automovil` (`id`)
+  KEY `idAutomovil` (`idAutomovil`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 SET FOREIGN_KEY_CHECKS = 1;
