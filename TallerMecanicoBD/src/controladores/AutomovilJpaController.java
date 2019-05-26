@@ -76,69 +76,69 @@ public class AutomovilJpaController implements Serializable {
         }
     }
 
-    public void edit(Automovil automovil) throws NonexistentEntityException, Exception {
-        EntityManager em = null;
-        try {
-            em = getEntityManager();
-            em.getTransaction().begin();
-            Automovil persistentAutomovil = em.find(Automovil.class, automovil.getId());
-            Cliente idClienteOld = persistentAutomovil.getIdCliente();
-            Cliente idClienteNew = automovil.getIdCliente();
-            List<Reparacion> reparacionListOld = persistentAutomovil.getReparacionList();
-            List<Reparacion> reparacionListNew = automovil.getReparacionList();
-            if (idClienteNew != null) {
-                idClienteNew = em.getReference(idClienteNew.getClass(), idClienteNew.getId());
-                automovil.setIdCliente(idClienteNew);
-            }
-            List<Reparacion> attachedReparacionListNew = new ArrayList<Reparacion>();
-            for (Reparacion reparacionListNewReparacionToAttach : reparacionListNew) {
-                reparacionListNewReparacionToAttach = em.getReference(reparacionListNewReparacionToAttach.getClass(), reparacionListNewReparacionToAttach.getId());
-                attachedReparacionListNew.add(reparacionListNewReparacionToAttach);
-            }
-            reparacionListNew = attachedReparacionListNew;
-            automovil.setReparacionList(reparacionListNew);
-            automovil = em.merge(automovil);
-            if (idClienteOld != null && !idClienteOld.equals(idClienteNew)) {
-                idClienteOld.getAutomovilList().remove(automovil);
-                idClienteOld = em.merge(idClienteOld);
-            }
-            if (idClienteNew != null && !idClienteNew.equals(idClienteOld)) {
-                idClienteNew.getAutomovilList().add(automovil);
-                idClienteNew = em.merge(idClienteNew);
-            }
-            for (Reparacion reparacionListOldReparacion : reparacionListOld) {
-                if (!reparacionListNew.contains(reparacionListOldReparacion)) {
-                    reparacionListOldReparacion.setIdAutomovil(null);
-                    reparacionListOldReparacion = em.merge(reparacionListOldReparacion);
-                }
-            }
-            for (Reparacion reparacionListNewReparacion : reparacionListNew) {
-                if (!reparacionListOld.contains(reparacionListNewReparacion)) {
-                    Automovil oldIdAutomovilOfReparacionListNewReparacion = reparacionListNewReparacion.getIdAutomovil();
-                    reparacionListNewReparacion.setIdAutomovil(automovil);
-                    reparacionListNewReparacion = em.merge(reparacionListNewReparacion);
-                    if (oldIdAutomovilOfReparacionListNewReparacion != null && !oldIdAutomovilOfReparacionListNewReparacion.equals(automovil)) {
-                        oldIdAutomovilOfReparacionListNewReparacion.getReparacionList().remove(reparacionListNewReparacion);
-                        oldIdAutomovilOfReparacionListNewReparacion = em.merge(oldIdAutomovilOfReparacionListNewReparacion);
-                    }
-                }
-            }
-            em.getTransaction().commit();
-        } catch (Exception ex) {
-            String msg = ex.getLocalizedMessage();
-            if (msg == null || msg.length() == 0) {
-                Integer id = automovil.getId();
-                if (findAutomovil(id) == null) {
-                    throw new NonexistentEntityException("The automovil with id " + id + " no longer exists.");
-                }
-            }
-            throw ex;
-        } finally {
-            if (em != null) {
-                em.close();
-            }
-        }
-    }
+//    public void edit(Automovil automovil) throws NonexistentEntityException, Exception {
+//        EntityManager em = null;
+//        try {
+//            em = getEntityManager();
+//            em.getTransaction().begin();
+//            Automovil persistentAutomovil = em.find(Automovil.class, automovil.getId());
+//            Cliente idClienteOld = persistentAutomovil.getIdCliente();
+//            Cliente idClienteNew = automovil.getIdCliente();
+//            List<Reparacion> reparacionListOld = persistentAutomovil.getReparacionList();
+//            List<Reparacion> reparacionListNew = automovil.getReparacionList();
+//            if (idClienteNew != null) {
+//                idClienteNew = em.getReference(idClienteNew.getClass(), idClienteNew.getId());
+//                automovil.setIdCliente(idClienteNew);
+//            }
+//            List<Reparacion> attachedReparacionListNew = new ArrayList<Reparacion>();
+//            for (Reparacion reparacionListNewReparacionToAttach : reparacionListNew) {
+//                reparacionListNewReparacionToAttach = em.getReference(reparacionListNewReparacionToAttach.getClass(), reparacionListNewReparacionToAttach.getId());
+//                attachedReparacionListNew.add(reparacionListNewReparacionToAttach);
+//            }
+//            reparacionListNew = attachedReparacionListNew;
+//            automovil.setReparacionList(reparacionListNew);
+//            automovil = em.merge(automovil);
+//            if (idClienteOld != null && !idClienteOld.equals(idClienteNew)) {
+//                idClienteOld.getAutomovilList().remove(automovil);
+//                idClienteOld = em.merge(idClienteOld);
+//            }
+//            if (idClienteNew != null && !idClienteNew.equals(idClienteOld)) {
+//                idClienteNew.getAutomovilList().add(automovil);
+//                idClienteNew = em.merge(idClienteNew);
+//            }
+//            for (Reparacion reparacionListOldReparacion : reparacionListOld) {
+//                if (!reparacionListNew.contains(reparacionListOldReparacion)) {
+//                    reparacionListOldReparacion.setIdAutomovil(null);
+//                    reparacionListOldReparacion = em.merge(reparacionListOldReparacion);
+//                }
+//            }
+//            for (Reparacion reparacionListNewReparacion : reparacionListNew) {
+//                if (!reparacionListOld.contains(reparacionListNewReparacion)) {
+//                    Automovil oldIdAutomovilOfReparacionListNewReparacion = reparacionListNewReparacion.getIdAutomovil();
+//                    reparacionListNewReparacion.setIdAutomovil(automovil);
+//                    reparacionListNewReparacion = em.merge(reparacionListNewReparacion);
+//                    if (oldIdAutomovilOfReparacionListNewReparacion != null && !oldIdAutomovilOfReparacionListNewReparacion.equals(automovil)) {
+//                        oldIdAutomovilOfReparacionListNewReparacion.getReparacionList().remove(reparacionListNewReparacion);
+//                        oldIdAutomovilOfReparacionListNewReparacion = em.merge(oldIdAutomovilOfReparacionListNewReparacion);
+//                    }
+//                }
+//            }
+//            em.getTransaction().commit();
+//        } catch (Exception ex) {
+//            String msg = ex.getLocalizedMessage();
+//            if (msg == null || msg.length() == 0) {
+//                Integer id = automovil.getId();
+//                if (findAutomovil(id) == null) {
+//                    throw new NonexistentEntityException("The automovil with id " + id + " no longer exists.");
+//                }
+//            }
+//            throw ex;
+//        } finally {
+//            if (em != null) {
+//                em.close();
+//            }
+//        }
+//    }
 
     public void destroy(Integer id) throws NonexistentEntityException {
         EntityManager em = null;

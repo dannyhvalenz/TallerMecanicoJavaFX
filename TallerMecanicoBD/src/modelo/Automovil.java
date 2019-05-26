@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Automovil.findAll", query = "SELECT a FROM Automovil a")
-    , @NamedQuery(name = "Automovil.findById", query = "SELECT a FROM Automovil a WHERE a.id = :id")
+    , @NamedQuery(name = "Automovil.findByMatricula", query = "SELECT a FROM Automovil a WHERE a.matricula = :matricula")
     , @NamedQuery(name = "Automovil.findByMarca", query = "SELECT a FROM Automovil a WHERE a.marca = :marca")
     , @NamedQuery(name = "Automovil.findByModelo", query = "SELECT a FROM Automovil a WHERE a.modelo = :modelo")
     , @NamedQuery(name = "Automovil.findByLinea", query = "SELECT a FROM Automovil a WHERE a.linea = :linea")
@@ -40,8 +40,8 @@ public class Automovil implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
+    @Column(name = "matricula")
+    private String matricula;
     @Basic(optional = false)
     @Column(name = "marca")
     private String marca;
@@ -63,24 +63,24 @@ public class Automovil implements Serializable {
     public Automovil() {
     }
 
-    public Automovil(Integer id) {
-        this.id = id;
+    public Automovil(String matricula) {
+        this.matricula = matricula;
     }
 
-    public Automovil(Integer id, String marca, String modelo, String linea, String color) {
-        this.id = id;
+    public Automovil(String matricula, String marca, String modelo, String linea, String color) {
+        this.matricula = matricula;
         this.marca = marca;
         this.modelo = modelo;
         this.linea = linea;
         this.color = color;
     }
 
-    public Integer getId() {
-        return id;
+    public String getId() {
+        return matricula;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setId(String matricula) {
+        this.matricula = matricula;
     }
 
     public String getMarca() {
@@ -135,7 +135,7 @@ public class Automovil implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
+        hash += (matricula != null ? matricula.hashCode() : 0);
         return hash;
     }
 
@@ -146,7 +146,7 @@ public class Automovil implements Serializable {
             return false;
         }
         Automovil other = (Automovil) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+        if ((this.matricula == null && other.matricula != null) || (this.matricula != null && !this.matricula.equals(other.matricula))) {
             return false;
         }
         return true;
@@ -154,7 +154,7 @@ public class Automovil implements Serializable {
 
     @Override
     public String toString() {
-        return "controladores.Automovil[ id=" + id + " ]";
+        return "controladores.Automovil[ matricula =" + matricula + " ]";
     }
     
 }
