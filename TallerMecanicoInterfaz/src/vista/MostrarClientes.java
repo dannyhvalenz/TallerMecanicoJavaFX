@@ -50,7 +50,6 @@ public class MostrarClientes extends Stage{
     private JFXButton btnAgregar, btnEditar, btnEliminar;
     private Label administrarCliente, administrarClienteConsultar;
     
-    private FadeTransition abrirConsultar;
     private boolean editarCliente = false;
     private String nombre, telefono, direccion, correo, nombreAdministrador;
     private int idCliente;
@@ -122,11 +121,6 @@ public class MostrarClientes extends Stage{
         
     }
     
-    private boolean datosInvalidos() {
-        return tfNombre.getText().isEmpty() || tfCorreo.getText().isEmpty() || tfTelefono.getText().isEmpty()
-                || tfDireccion.getText().isEmpty();
-    }
-    
     private boolean validarDatos() {
         boolean valido = true;
         String validarNombre = tfNombre.getText();
@@ -143,8 +137,10 @@ public class MostrarClientes extends Stage{
             errores += "* El correo no debe estar vacio \n";
         }
         
-        if(validarTelefono.trim().length() < 10){
+        if(validarTelefono.trim().length() == 0){
             errores += "* El telefono no debe estar vacio \n";
+        } else if (validarTelefono.trim().length() < 10){
+            errores += "* El telefono debe tener 10 dígitos \n";
         }
         
         if(validarDireccion.trim().length() == 0){
@@ -152,13 +148,6 @@ public class MostrarClientes extends Stage{
         }
         
         if (errores.length() == 0){
-//            if (nuevo){
-//                alumno = new Alumno();
-//            }
-//            alumno.setNombre(nombre);
-//            alumno.setMatricula(matricula);
-//            alumno.setDireccion(direccion);
-
             panelEditar.setVisible(false);
             this.setWidth(333);
             this.centerOnScreen();
@@ -320,7 +309,6 @@ public class MostrarClientes extends Stage{
                 ClienteJpaController controlador = new ClienteJpaController();
                 
                 if (editarCliente == false){
-                    System.out.println("Agregar");
                     try {
                         idCliente = controlador.getClienteCount() + 1;
                         System.out.println(idCliente);
@@ -336,7 +324,7 @@ public class MostrarClientes extends Stage{
                     System.out.println(idCliente);
                     try {
                         Cliente c = new Cliente (idCliente, nombre, telefono, direccion, correo);
-                        controlador.edit(c);
+                        controlador.editarCliente(c);
                         cargarClientes("");
                     } catch (Exception ex) {
                         System.out.println(ex);
@@ -417,9 +405,6 @@ public class MostrarClientes extends Stage{
         btnEditar.setOnAction(evt -> {
             panelEditar.setVisible(true);
             panelConsultar.setVisible(false);
-//            btnEditar.setVisible(false);
-//            btnEliminar.setVisible(false);
-            
             nombre = separarNombre(nombre);
             tfNombre.setText(nombre);
             tfTelefono.setText(tfTelefonoConsultar.getText());
@@ -576,7 +561,6 @@ public class MostrarClientes extends Stage{
                 administrarClienteConsultar.setText(nombre);
             } 
         });
-   
         
         cargarClientes("");
     }
@@ -609,7 +593,6 @@ public class MostrarClientes extends Stage{
         header.setText("  " + titulo);
         header.setGraphic(error);
         content.setHeading(header);
-        //content.setHeading(new Text(titulo));
         content.getStyleClass().add("mensaje");
         content.setBody(new Text(mensaje));
         content.setPrefSize(250, 100);

@@ -49,6 +49,29 @@ public class ClienteJpaController implements Serializable {
         }
     }
     
+    public void editarCliente (Cliente c) throws NonexistentEntityException, Exception {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            c = em.merge(c);
+            em.getTransaction().commit();
+        } catch (Exception ex) {
+            String msg = ex.getLocalizedMessage();
+            if (msg == null || msg.length() == 0) {
+                Integer id = c.getId();
+                if (findCliente(id) == null) {
+                    throw new NonexistentEntityException("El cliente con el id " + id + " no existe.");
+                }
+            }
+            throw ex;
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
+    
     public void create(Cliente cliente) {
         if (cliente.getAutomovilList() == null) {
             cliente.setAutomovilList(new ArrayList<Automovil>());
@@ -204,10 +227,19 @@ public class ClienteJpaController implements Serializable {
         }
     }
     
-    public Cliente findCliente(String cliente) {
+    public Cliente findCliente(String nombre) {
         EntityManager em = getEntityManager();
         try {
-            return em.find(Cliente.class, cliente);
+            return em.find(Cliente.class, nombre);
+        } finally {
+            em.close();
+        }
+    }
+    
+    public Cliente findCliente(int id) {
+        EntityManager em = getEntityManager();
+        try {
+            return em.find(Cliente.class, id);
         } finally {
             em.close();
         }
