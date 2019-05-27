@@ -6,6 +6,7 @@
 package controladores;
 
 import controladores.exceptions.NonexistentEntityException;
+import controladores.exceptions.PreexistingEntityException;
 import java.io.Serializable;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
@@ -25,20 +26,19 @@ import modelo.Automovil;
  * @author dany
  */
 public class AutomovilJpaController implements Serializable {
+    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("TallerMecanicoBDPU");
 
+    public AutomovilJpaController() {}
+    
     public AutomovilJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("TallerMecanicoBDPU");
-
+    
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
 
-    public void create(Automovil automovil) {
-        if (automovil.getReparacionList() == null) {
-            automovil.setReparacionList(new ArrayList<Reparacion>());
-        }
+    public void create(Automovil automovil) throws PreexistingEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -48,27 +48,17 @@ public class AutomovilJpaController implements Serializable {
                 idCliente = em.getReference(idCliente.getClass(), idCliente.getId());
                 automovil.setIdCliente(idCliente);
             }
-            List<Reparacion> attachedReparacionList = new ArrayList<Reparacion>();
-            for (Reparacion reparacionListReparacionToAttach : automovil.getReparacionList()) {
-                reparacionListReparacionToAttach = em.getReference(reparacionListReparacionToAttach.getClass(), reparacionListReparacionToAttach.getId());
-                attachedReparacionList.add(reparacionListReparacionToAttach);
-            }
-            automovil.setReparacionList(attachedReparacionList);
             em.persist(automovil);
             if (idCliente != null) {
                 idCliente.getAutomovilList().add(automovil);
                 idCliente = em.merge(idCliente);
             }
-            for (Reparacion reparacionListReparacion : automovil.getReparacionList()) {
-                Automovil oldIdAutomovilOfReparacionListReparacion = reparacionListReparacion.getIdAutomovil();
-                reparacionListReparacion.setIdAutomovil(automovil);
-                reparacionListReparacion = em.merge(reparacionListReparacion);
-                if (oldIdAutomovilOfReparacionListReparacion != null) {
-                    oldIdAutomovilOfReparacionListReparacion.getReparacionList().remove(reparacionListReparacion);
-                    oldIdAutomovilOfReparacionListReparacion = em.merge(oldIdAutomovilOfReparacionListReparacion);
-                }
-            }
             em.getTransaction().commit();
+        } catch (Exception ex) {
+            if (findAutomovil(automovil.getId()) != null) {
+                throw new PreexistingEntityException("Automovil " + automovil + " already exists.", ex);
+            }
+            throw ex;
         } finally {
             if (em != null) {
                 em.close();
@@ -76,71 +66,45 @@ public class AutomovilJpaController implements Serializable {
         }
     }
 
-//    public void edit(Automovil automovil) throws NonexistentEntityException, Exception {
-//        EntityManager em = null;
-//        try {
-//            em = getEntityManager();
-//            em.getTransaction().begin();
-//            Automovil persistentAutomovil = em.find(Automovil.class, automovil.getId());
-//            Cliente idClienteOld = persistentAutomovil.getIdCliente();
-//            Cliente idClienteNew = automovil.getIdCliente();
-//            List<Reparacion> reparacionListOld = persistentAutomovil.getReparacionList();
-//            List<Reparacion> reparacionListNew = automovil.getReparacionList();
-//            if (idClienteNew != null) {
-//                idClienteNew = em.getReference(idClienteNew.getClass(), idClienteNew.getId());
-//                automovil.setIdCliente(idClienteNew);
-//            }
-//            List<Reparacion> attachedReparacionListNew = new ArrayList<Reparacion>();
-//            for (Reparacion reparacionListNewReparacionToAttach : reparacionListNew) {
-//                reparacionListNewReparacionToAttach = em.getReference(reparacionListNewReparacionToAttach.getClass(), reparacionListNewReparacionToAttach.getId());
-//                attachedReparacionListNew.add(reparacionListNewReparacionToAttach);
-//            }
-//            reparacionListNew = attachedReparacionListNew;
-//            automovil.setReparacionList(reparacionListNew);
-//            automovil = em.merge(automovil);
-//            if (idClienteOld != null && !idClienteOld.equals(idClienteNew)) {
-//                idClienteOld.getAutomovilList().remove(automovil);
-//                idClienteOld = em.merge(idClienteOld);
-//            }
-//            if (idClienteNew != null && !idClienteNew.equals(idClienteOld)) {
-//                idClienteNew.getAutomovilList().add(automovil);
-//                idClienteNew = em.merge(idClienteNew);
-//            }
-//            for (Reparacion reparacionListOldReparacion : reparacionListOld) {
-//                if (!reparacionListNew.contains(reparacionListOldReparacion)) {
-//                    reparacionListOldReparacion.setIdAutomovil(null);
-//                    reparacionListOldReparacion = em.merge(reparacionListOldReparacion);
-//                }
-//            }
-//            for (Reparacion reparacionListNewReparacion : reparacionListNew) {
-//                if (!reparacionListOld.contains(reparacionListNewReparacion)) {
-//                    Automovil oldIdAutomovilOfReparacionListNewReparacion = reparacionListNewReparacion.getIdAutomovil();
-//                    reparacionListNewReparacion.setIdAutomovil(automovil);
-//                    reparacionListNewReparacion = em.merge(reparacionListNewReparacion);
-//                    if (oldIdAutomovilOfReparacionListNewReparacion != null && !oldIdAutomovilOfReparacionListNewReparacion.equals(automovil)) {
-//                        oldIdAutomovilOfReparacionListNewReparacion.getReparacionList().remove(reparacionListNewReparacion);
-//                        oldIdAutomovilOfReparacionListNewReparacion = em.merge(oldIdAutomovilOfReparacionListNewReparacion);
-//                    }
-//                }
-//            }
-//            em.getTransaction().commit();
-//        } catch (Exception ex) {
-//            String msg = ex.getLocalizedMessage();
-//            if (msg == null || msg.length() == 0) {
-//                Integer id = automovil.getId();
-//                if (findAutomovil(id) == null) {
-//                    throw new NonexistentEntityException("The automovil with id " + id + " no longer exists.");
-//                }
-//            }
-//            throw ex;
-//        } finally {
-//            if (em != null) {
-//                em.close();
-//            }
-//        }
-//    }
+    public void edit(Automovil automovil) throws NonexistentEntityException, Exception {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            Automovil persistentAutomovil = em.find(Automovil.class, automovil.getId());
+            Cliente idClienteOld = persistentAutomovil.getIdCliente();
+            Cliente idClienteNew = automovil.getIdCliente();
+            if (idClienteNew != null) {
+                idClienteNew = em.getReference(idClienteNew.getClass(), idClienteNew.getId());
+                automovil.setIdCliente(idClienteNew);
+            }
+            automovil = em.merge(automovil);
+            if (idClienteOld != null && !idClienteOld.equals(idClienteNew)) {
+                idClienteOld.getAutomovilList().remove(automovil);
+                idClienteOld = em.merge(idClienteOld);
+            }
+            if (idClienteNew != null && !idClienteNew.equals(idClienteOld)) {
+                idClienteNew.getAutomovilList().add(automovil);
+                idClienteNew = em.merge(idClienteNew);
+            }
+            em.getTransaction().commit();
+        } catch (Exception ex) {
+            String msg = ex.getLocalizedMessage();
+            if (msg == null || msg.length() == 0) {
+                String id = automovil.getId();
+                if (findAutomovil(id) == null) {
+                    throw new NonexistentEntityException("The automovil with id " + id + " no longer exists.");
+                }
+            }
+            throw ex;
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+    }
 
-    public void destroy(Integer id) throws NonexistentEntityException {
+    public void destroy(String id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -156,11 +120,6 @@ public class AutomovilJpaController implements Serializable {
             if (idCliente != null) {
                 idCliente.getAutomovilList().remove(automovil);
                 idCliente = em.merge(idCliente);
-            }
-            List<Reparacion> reparacionList = automovil.getReparacionList();
-            for (Reparacion reparacionListReparacion : reparacionList) {
-                reparacionListReparacion.setIdAutomovil(null);
-                reparacionListReparacion = em.merge(reparacionListReparacion);
             }
             em.remove(automovil);
             em.getTransaction().commit();
@@ -195,14 +154,28 @@ public class AutomovilJpaController implements Serializable {
         }
     }
 
-    public Automovil findAutomovil(Integer id) {
+    public Automovil findAutomovil(String matricula) {
         EntityManager em = getEntityManager();
         try {
-            return em.find(Automovil.class, id);
+            return em.find(Automovil.class, matricula);
         } finally {
             em.close();
         }
     }
+    
+    public List<Automovil> findAutomoviles(String matricula, Cliente idCliente) {
+        EntityManager em = getEntityManager();
+        try {
+            List<Automovil> autos = new ArrayList<Automovil>();
+            autos = em.createNamedQuery("Automovil.findByMatriculaLike")
+                    .setParameter("idCliente", idCliente)
+                    .setParameter("matricula", matricula).getResultList();
+            return autos;
+        } finally {
+            em.close();
+        }
+    }
+
 
     public int getAutomovilCount() {
         EntityManager em = getEntityManager();
@@ -217,4 +190,30 @@ public class AutomovilJpaController implements Serializable {
         }
     }
     
+    public List<Automovil> getAutomovilesCliente(Cliente idCliente){
+        EntityManager em = getEntityManager();
+        try {
+            List<Automovil> autos = new ArrayList<Automovil>();
+            autos = em.createNamedQuery("Automovil.findAll").setParameter("idCliente", idCliente).getResultList();
+            return autos;
+        } finally {
+            em.close();
+        }
+    }
+
+    public int getAutomovilCount(Cliente idCliente) {
+        EntityManager em = getEntityManager();
+        try {
+            List<Automovil> autos = getAutomovilesCliente(idCliente);
+            int contador = 0;
+            for (Automovil a : autos){
+                contador++;
+            }
+            return contador;
+        } finally {
+            em.close();
+        }
+    }
+    
 }
+

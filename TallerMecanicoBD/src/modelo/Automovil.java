@@ -29,7 +29,8 @@ import javax.xml.bind.annotation.XmlTransient;
 @Table(name = "Automovil")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Automovil.findAll", query = "SELECT a FROM Automovil a")
+    @NamedQuery(name = "Automovil.findAll", query = "SELECT a FROM Automovil a WHERE a.idCliente = :idCliente")
+    , @NamedQuery(name = "Automovil.findByMatriculaLike", query = "SELECT a FROM Automovil a WHERE a.idCliente = :idCliente AND a.matricula LIKE CONCAT(:matricula,'%')")
     , @NamedQuery(name = "Automovil.findByMatricula", query = "SELECT a FROM Automovil a WHERE a.matricula = :matricula")
     , @NamedQuery(name = "Automovil.findByMarca", query = "SELECT a FROM Automovil a WHERE a.marca = :marca")
     , @NamedQuery(name = "Automovil.findByModelo", query = "SELECT a FROM Automovil a WHERE a.modelo = :modelo")
@@ -67,12 +68,13 @@ public class Automovil implements Serializable {
         this.matricula = matricula;
     }
 
-    public Automovil(String matricula, String marca, String modelo, String linea, String color) {
+    public Automovil(String matricula, String marca, String modelo, String linea, String color, Cliente cliente) {
         this.matricula = matricula;
         this.marca = marca;
         this.modelo = modelo;
         this.linea = linea;
         this.color = color;
+        this.idCliente = cliente;
     }
 
     public String getId() {

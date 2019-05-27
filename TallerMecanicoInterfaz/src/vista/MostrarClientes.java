@@ -3,31 +3,22 @@ package vista;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
-import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 import controladores.ClienteJpaController;
-import controladores.exceptions.IllegalOrphanException;
-import controladores.exceptions.NonexistentEntityException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.animation.FadeTransition;
-import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
 
 import modelo.Cliente;
 
@@ -53,6 +44,7 @@ public class MostrarClientes extends Stage{
     private boolean editarCliente = false;
     private String nombre, telefono, direccion, correo, nombreAdministrador;
     private int idCliente;
+    private Cliente cliente;
     
     public MostrarClientes(String nombreAdministrador){
         this.nombreAdministrador = nombreAdministrador;
@@ -221,7 +213,8 @@ public class MostrarClientes extends Stage{
         btnVerAutos.setText("Ver autos del cliente");
         btnVerAutos.getStyleClass().add("botonVer");
         btnVerAutos.setOnAction(evt -> {
-            MostrarAutomoviles autos = new MostrarAutomoviles();
+            System.out.println(cliente.getId());
+            MostrarAutomoviles2 autos = new MostrarAutomoviles2(nombreAdministrador, cliente);
             autos.show();
             this.hide();
         });
@@ -312,8 +305,8 @@ public class MostrarClientes extends Stage{
                     try {
                         idCliente = controlador.getClienteCount() + 1;
                         System.out.println(idCliente);
-                        Cliente c = new Cliente (idCliente, nombre, telefono, direccion, correo);
-                        controlador.crearCliente(c);
+                        cliente = new Cliente (idCliente, nombre, telefono, direccion, correo);
+                        controlador.crearCliente(cliente);
                         cargarClientes("");
                     } catch (Exception ex){
                         System.out.println(ex);
@@ -323,8 +316,8 @@ public class MostrarClientes extends Stage{
                     System.out.println(nombre);
                     System.out.println(idCliente);
                     try {
-                        Cliente c = new Cliente (idCliente, nombre, telefono, direccion, correo);
-                        controlador.editarCliente(c);
+                        cliente = new Cliente (idCliente, nombre, telefono, direccion, correo);
+                        controlador.editarCliente(cliente);
                         cargarClientes("");
                     } catch (Exception ex) {
                         System.out.println(ex);
@@ -355,6 +348,9 @@ public class MostrarClientes extends Stage{
                 tfTelefonoConsultar.setText(tfTelefono.getText());
                 tfCorreoConsultar.setText(tfCorreo.getText());
                 nombre = tfNombre.getText();
+                
+                // REVISAR
+                
                 nombre = separarNombre(nombre);
                 nombre =  nombre.replaceAll("\\s+", "\n");
                 administrarClienteConsultar.setText(nombre);
@@ -492,7 +488,7 @@ public class MostrarClientes extends Stage{
         imageBuscar.setFitHeight(22);
         imageBuscar.setFitWidth(22);
         
-        // Boton Salir
+        // Boton Drawer
         JFXButton btnDrawer = new JFXButton();
         ImageView imageDrawer = new ImageView();
         imageDrawer.setImage(new Image("/resources/Menu.png"));
@@ -538,7 +534,7 @@ public class MostrarClientes extends Stage{
         clientList = new JFXListView();
         clientList.setLayoutX(0);
         clientList.setLayoutY(86);
-        clientList.setPrefHeight(552);
+        clientList.setPrefHeight(414);
         clientList.setPrefWidth(333);
         
         clientList.setOnMouseClicked((MouseEvent click) -> {
@@ -549,14 +545,16 @@ public class MostrarClientes extends Stage{
                 panelConsultar.setVisible(true);
                 panelEditar.setVisible(false);
                 
-                // Recuperar cliente
-                idCliente = c.getId();
-                tfTelefonoConsultar.setText(c.getTelefono());
-                tfDireccionConsultar.setText(c.getDireccion());
-                tfCorreoConsultar.setText(c.getCorreo());
+                cliente = new Cliente (c.getId(), c.getNombre(), c.getTelefono(), c.getDireccion(), c.getCorreo());
                 
-                idCliente = c.getId();
-                nombre = c.getNombre();
+                
+                // Recuperar cliente
+                idCliente = cliente.getId();
+                tfTelefonoConsultar.setText(cliente.getTelefono());
+                tfDireccionConsultar.setText(cliente.getDireccion());
+                tfCorreoConsultar.setText(cliente.getCorreo());
+                
+                nombre = cliente.getNombre();
                 nombre =  nombre.replaceAll("\\s+", "\n");
                 administrarClienteConsultar.setText(nombre);
             } 
