@@ -310,17 +310,18 @@ public class MostrarAutomoviles2 extends Stage{
         btnAceptar.setOnAction(evt -> {
             if (validarDatos()) {
                 matricula = tfMatricula.getText();
+                matricula = matricula.toUpperCase();
                 marca = tfMarca.getText();
                 modelo = tfModelo.getText();
                 linea = tfLinea.getText();
                 color = tfColor.getText();
                 
-                ClienteJpaController controlador = new ClienteJpaController();
+                AutomovilJpaController controlador = new AutomovilJpaController();
                 
                 if (editarAutomovil == false){
                     try {
                         automovil = new Automovil (matricula, marca, modelo, linea , color, cliente);
-                        //controlador.crearCliente(cliente);
+                        controlador.create(automovil);
                         cargarAutomoviles("");
                     } catch (Exception ex){
                         System.out.println(ex);
