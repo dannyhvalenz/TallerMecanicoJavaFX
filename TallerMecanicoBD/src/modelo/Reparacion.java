@@ -6,6 +6,10 @@
 package modelo;
 
 import java.io.Serializable;
+import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +19,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -25,7 +31,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Table(name = "Reparacion")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Reparacion.findAll", query = "SELECT r FROM Reparacion r")
+    @NamedQuery(name = "Reparacion.findAll", query = "SELECT r FROM Reparacion r WHERE r.idAutomovil = :idAutomovil")
+    , @NamedQuery(name = "Reparacion.findByTipoLike", query = "SELECT r FROM Reparacion r WHERE r.idAutomovil = :idAutomovil AND r.tipo LIKE CONCAT(:tipo,'%')")
     , @NamedQuery(name = "Reparacion.findById", query = "SELECT r FROM Reparacion r WHERE r.id = :id")
     , @NamedQuery(name = "Reparacion.findByTipo", query = "SELECT r FROM Reparacion r WHERE r.tipo = :tipo")
     , @NamedQuery(name = "Reparacion.findByKilometraje", query = "SELECT r FROM Reparacion r WHERE r.kilometraje = :kilometraje")
@@ -34,6 +41,20 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Reparacion.findByDescripcionFalla", query = "SELECT r FROM Reparacion r WHERE r.descripcionFalla = :descripcionFalla")
     , @NamedQuery(name = "Reparacion.findByDescripcionMantenimiento", query = "SELECT r FROM Reparacion r WHERE r.descripcionMantenimiento = :descripcionMantenimiento")})
 public class Reparacion implements Serializable {
+
+    @Basic(optional = false)
+    @Column(name = "hora")
+    @Temporal(TemporalType.DATE)
+    private Date hora;
+
+    @Basic(optional = false)
+    @Column(name = "fecha")
+    @Temporal(TemporalType.DATE)
+    private Date fecha;
+
+    @Basic(optional = false)
+    @Column(name = "costo")
+    private int costo;
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -46,12 +67,6 @@ public class Reparacion implements Serializable {
     @Basic(optional = false)
     @Column(name = "kilometraje")
     private String kilometraje;
-    @Basic(optional = false)
-    @Column(name = "fecha")
-    private String fecha;
-    @Basic(optional = false)
-    @Column(name = "hora")
-    private String hora;
     @Basic(optional = false)
     @Column(name = "descripcionFalla")
     private String descripcionFalla;
@@ -69,16 +84,21 @@ public class Reparacion implements Serializable {
         this.id = id;
     }
 
-    public Reparacion(Integer id, String tipo, String kilometraje, String fecha, String hora, String descripcionFalla, String descripcionMantenimiento) {
+    public Reparacion(Date fecha, Date hora, int costo, Integer id, String tipo, 
+            String kilometraje, String descripcionFalla, String descripcionMantenimiento, 
+            Automovil idAutomovil) {
+        this.fecha = fecha;
+        this.hora = hora;
+        this.costo = costo;
         this.id = id;
         this.tipo = tipo;
         this.kilometraje = kilometraje;
-        this.fecha = fecha;
-        this.hora = hora;
         this.descripcionFalla = descripcionFalla;
         this.descripcionMantenimiento = descripcionMantenimiento;
+        this.idAutomovil = idAutomovil;
     }
 
+   
     public Integer getId() {
         return id;
     }
@@ -103,21 +123,6 @@ public class Reparacion implements Serializable {
         this.kilometraje = kilometraje;
     }
 
-    public String getFecha() {
-        return fecha;
-    }
-
-    public void setFecha(String fecha) {
-        this.fecha = fecha;
-    }
-
-    public String getHora() {
-        return hora;
-    }
-
-    public void setHora(String hora) {
-        this.hora = hora;
-    }
 
     public String getDescripcionFalla() {
         return descripcionFalla;
@@ -166,6 +171,30 @@ public class Reparacion implements Serializable {
     @Override
     public String toString() {
         return "controladores.Reparacion[ id=" + id + " ]";
+    }
+
+    public int getCosto() {
+        return costo;
+    }
+
+    public void setCosto(int costo) {
+        this.costo = costo;
+    }
+
+    public Date getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(Date fecha) {
+        this.fecha = fecha;
+    }
+
+    public Date getHora() {
+        return hora;
+    }
+
+    public void setHora(Date hora) {
+        this.hora = hora;
     }
     
 }

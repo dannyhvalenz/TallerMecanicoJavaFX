@@ -9,8 +9,10 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 import controladores.AutomovilJpaController;
+import controladores.ClienteJpaController;
 import java.util.List;
 import javafx.event.ActionEvent;
 import javafx.scene.Scene;
@@ -35,16 +37,20 @@ public class MostrarAutomoviles extends Stage{
     private JFXListView<Label> carList;
     private JFXTextField tfBuscar;
     private List<Automovil> automoviles;
+    
     private JFXTextField tfMarca, tfModelo, tfLinea, tfMatricula, tfColor;
+    
     private JFXTextField tfMarcaConsultar, tfModeloConsultar, tfLineaConsultar, tfColorConsultar;
-    private AnchorPane panelEditar, panelAuto, panelBusqueda, panelConsultar, panelAutoConsultar;
+    
+    private AnchorPane root, panelEditar, panelAutomovil, panelBusqueda, panelConsultar, panelAutomovilConsultar;
     private JFXButton btnAgregar, btnEditar, btnEliminar;
-    private Label administrarAuto, administrarAutoConsultar;
+    private Label administrarAutomovil, administrarAutomovilConsultar;
+    
+    private boolean editarAutomovil = false;
     private String matricula, marca, linea, color, nombreAdministrador;
     private int modelo;
     private Cliente cliente;
-    private AnchorPane root;
-    private boolean editarAuto = false;
+    private Automovil automovil;
     
     public MostrarAutomoviles(String nombreAdministrador, Cliente cliente){
         this.nombreAdministrador = nombreAdministrador;
@@ -56,7 +62,7 @@ public class MostrarAutomoviles extends Stage{
     
     private void buscarAutomovil(){
         tfBuscar.setOnKeyTyped(evt -> {
-            cargarAutos(tfBuscar.getText());
+            cargarAutomoviles(tfBuscar.getText());
         });
     }
 
@@ -65,56 +71,57 @@ public class MostrarAutomoviles extends Stage{
         Scene scene = new Scene(root,333,500); 
         scene.getStylesheets().add(getClass().getResource("/vista/styles.css").toExternalForm());
         setScene(scene);
-
-        crearListaAutos();
+        
+        crearListaAutomoviles();
         crearBarraBusqueda();
-        crearPanelConsultarAuto();
-        crearPanelEditarAuto();
-        crearBotonAgregarAuto();
-
+        crearPanelConsultarAutomovil();
+        crearPanelEditarAutomovil();
+        crearBotonAgregarAutomovil();
+        
         root.getChildren().addAll(carList, panelBusqueda, btnAgregar, panelEditar, panelConsultar);
     }
-
-    private void cargarAutos(String matriculaBuscar) {
+    
+    private void cargarAutomoviles(String matriculaBuscar) {
         carList.getItems().clear();
         AutomovilJpaController controlador = new AutomovilJpaController();
-        System.out.println("id del cliente " + cliente.getId());
-//        if(matriculaBuscar.equals("")){
-//            System.out.println(cliente.getId());
-//            automoviles = controlador.getAutomovilesCliente(cliente.getId());
-//            int i = 0;
-//            for (Automovil a : automoviles) {
-//                    try {
-//                        Label lbl = new Label(a.getMarca() + " - " + a.getId());
-//                        lbl.setGraphic(new ImageView(new Image(
-//                                getClass().getResourceAsStream("/resources/Coche_Negro.png"))));
-//                        lbl.getStyleClass().add("label");
-//                        carList.getItems().add(lbl);
-//                    } catch (Exception ex) {
-//                        System.err.println("Error: " + ex);
-//                    }
-//                    i++;
-//                }
-//            System.out.println("Elementos recuperados: "+i);
-//        } else {
-//            automoviles = controlador.findAutomoviles(matriculaBuscar, cliente.getId());
-//            int i = 0;
-//            for (Automovil a : automoviles) {
-//                    try {
-//                        Label lbl = new Label(a.getMarca() + " - " + a.getId());
-//                        lbl.setGraphic(new ImageView(new Image(
-//                                getClass().getResourceAsStream("/resources/Coche_Negro.png"))));
-//                        lbl.getStyleClass().add("label");
-//                        carList.getItems().add(lbl);
-//                    } catch (Exception ex) {
-//                        System.err.println("Error: " + ex);
-//                    }
-//                    i++;
-//                }
-//            System.out.println("Elementos recuperados: "+i);
-//        }
-    }
         
+        if(matriculaBuscar.equals("")){
+            System.out.println(cliente.getId());
+            automoviles = controlador.getAutomovilesCliente(cliente);
+            int i = 0;
+            for (Automovil a : automoviles) {
+                    try {
+                        Label lbl = new Label(a.getMarca() + " - " + a.getId());
+                        lbl.setGraphic(new ImageView(new Image(
+                                getClass().getResourceAsStream("/resources/Coche_Negro.png"))));
+                        lbl.getStyleClass().add("label");
+                        carList.getItems().add(lbl);
+                    } catch (Exception ex) {
+                        System.err.println("Error: " + ex);
+                    }
+                    i++;
+                }
+            System.out.println(cliente.getNombre() + " tiene " + i + " automoviles");
+        } else {
+            automoviles = controlador.findAutomoviles(matriculaBuscar, cliente);
+            int i = 0;
+            for (Automovil a : automoviles) {
+                    try {
+                        Label lbl = new Label(a.getMarca() + " - " + a.getId());
+                        lbl.setGraphic(new ImageView(new Image(
+                                getClass().getResourceAsStream("/resources/Coche_Negro.png"))));
+                        lbl.getStyleClass().add("label");
+                        carList.getItems().add(lbl);
+                    } catch (Exception ex) {
+                        System.err.println("Error: " + ex);
+                    }
+                    i++;
+                }
+            System.out.println("Elementos recuperados: "+i);
+        } 
+        
+    }
+    
     private boolean validarDatos() {
         boolean valido = true;
         String validarMatricula = tfMatricula.getText();
@@ -136,12 +143,12 @@ public class MostrarAutomoviles extends Stage{
             errores += "* El modelo no debe estar vacio \n";
         }
         
-        if(validarLinea.trim().length() < 10){
+        if(validarLinea.trim().length() == 0){
             errores += "* La linea no debe estar vacia \n";
         }
         
         if(validarColor.trim().length() == 0){
-            errores += "* El color no debe estar vacio \n";
+            errores += "* La color no debe estar vacio \n";
         }
         
         if (errores.length() == 0){
@@ -156,8 +163,8 @@ public class MostrarAutomoviles extends Stage{
         return valido;
     }
 
-    private void crearPanelConsultarAuto() {
-        // Panel Consultar Auto
+    private void crearPanelConsultarAutomovil() {
+        // Panel Consultar Cliente
         panelConsultar = new AnchorPane();
         panelConsultar.setLayoutX(333);
         panelConsultar.setLayoutY(0);
@@ -165,47 +172,47 @@ public class MostrarAutomoviles extends Stage{
         panelConsultar.setPrefWidth(333);
         panelConsultar.setVisible(false);
         
-        // Marca
         tfMarcaConsultar = new JFXTextField();
         tfMarcaConsultar.setPromptText("Marca");
         tfMarcaConsultar.setLabelFloat(true);
-        tfMarcaConsultar.setLayoutX(21);
-        tfMarcaConsultar.setLayoutY(170);
+        tfMarcaConsultar.setLayoutX(40);
+        tfMarcaConsultar.setLayoutY(207);
         tfMarcaConsultar.setPrefHeight(30);
         tfMarcaConsultar.setPrefWidth(250);
+        tfMarcaConsultar.setEditable(false);
         tfMarcaConsultar.getStyleClass().add("TextField");
-        
-        // Modelo
+
         tfModeloConsultar = new JFXTextField();
         tfModeloConsultar.setPromptText("Modelo");
         tfModeloConsultar.setLabelFloat(true);
-        tfModeloConsultar.setLayoutX(21);
-        tfModeloConsultar.setLayoutY(240);
+        tfModeloConsultar.setLayoutX(40);
+        tfModeloConsultar.setLayoutY(262);
         tfModeloConsultar.setPrefHeight(30);
         tfModeloConsultar.setPrefWidth(250);
+        tfModeloConsultar.setEditable(false);
         tfModeloConsultar.getStyleClass().add("TextField");
-        
-        // Linea
+
         tfLineaConsultar = new JFXTextField();
         tfLineaConsultar.setPromptText("Linea");
         tfLineaConsultar.setLabelFloat(true);
-        tfLineaConsultar.setLayoutX(21);
-        tfLineaConsultar.setLayoutY(310);
+        tfLineaConsultar.setLayoutX(40);
+        tfLineaConsultar.setLayoutY(317);
         tfLineaConsultar.setPrefHeight(30);
         tfLineaConsultar.setPrefWidth(250);
+        tfLineaConsultar.setEditable(false);
         tfLineaConsultar.getStyleClass().add("TextField");
         
-        // Color
         tfColorConsultar = new JFXTextField();
-        tfColorConsultar.setPromptText("Color del Auto");
+        tfColorConsultar.setPromptText("Color");
         tfColorConsultar.setLabelFloat(true);
-        tfColorConsultar.setLayoutX(21);
-        tfColorConsultar.setLayoutY(380);
+        tfColorConsultar.setLayoutX(40);
+        tfColorConsultar.setLayoutY(381);
         tfColorConsultar.setPrefHeight(30);
         tfColorConsultar.setPrefWidth(250);
+        tfColorConsultar.setEditable(false);
         tfColorConsultar.getStyleClass().add("TextField");
         
-        crearPanelAutoConsultar();
+        crearPanelAutomovilConsultar();
         
         JFXButton btnVerReparaciones = new JFXButton();
         btnVerReparaciones.setLayoutX(0);
@@ -215,16 +222,18 @@ public class MostrarAutomoviles extends Stage{
         btnVerReparaciones.setText("Ver reparaciones del auto");
         btnVerReparaciones.getStyleClass().add("botonVer");
         btnVerReparaciones.setOnAction(evt -> {
-            MostrarReparaciones reparaciones = new MostrarReparaciones();
+            System.out.println(cliente.getId());
+            System.out.println("Matricula " + automovil.getId());
+            MostrarReparaciones2 reparaciones = new MostrarReparaciones2(nombreAdministrador, cliente, automovil);
             reparaciones.show();
             this.hide();
         });
         
-        panelConsultar.getChildren().addAll(panelAutoConsultar, tfMarca, tfModelo, tfLinea, tfColor, btnVerReparaciones);
+        panelConsultar.getChildren().addAll(panelAutomovilConsultar, tfMarcaConsultar, tfModeloConsultar, tfLineaConsultar, tfColorConsultar, btnVerReparaciones);
     }
 
-    private void crearPanelEditarAuto() {
-        // Panel Editar Auto
+    private void crearPanelEditarAutomovil() {
+        // Panel Editar Cliente
         panelEditar = new AnchorPane();
         panelEditar.setLayoutX(333);
         panelEditar.setLayoutY(0);
@@ -236,27 +245,26 @@ public class MostrarAutomoviles extends Stage{
         tfMatricula.setPromptText("Matricula");
         tfMatricula.setLabelFloat(true);
         tfMatricula.setLayoutX(40);
-        tfMatricula.setLayoutY(160);
+        tfMatricula.setLayoutY(173);
         tfMatricula.setPrefHeight(30);
         tfMatricula.setPrefWidth(250);
         tfMatricula.getStyleClass().add("TextField");
-        
-        // Marca
+
         tfMarca = new JFXTextField();
         tfMarca.setPromptText("Marca");
         tfMarca.setLabelFloat(true);
         tfMarca.setLayoutX(40);
-        tfMarca.setLayoutY(220);
+        tfMarca.setLayoutY(228);
         tfMarca.setPrefHeight(30);
         tfMarca.setPrefWidth(250);
         tfMarca.getStyleClass().add("TextField");
         
-        // Modelo
+        // Telefono
         tfModelo = new JFXTextField();
         tfModelo.setPromptText("Modelo");
         tfModelo.setLabelFloat(true);
         tfModelo.setLayoutX(40);
-        tfModelo.setLayoutY(280);
+        tfModelo.setLayoutY(288);
         tfModelo.setPrefHeight(30);
         tfModelo.setPrefWidth(250);
         tfModelo.setOnKeyTyped(e -> {
@@ -271,22 +279,21 @@ public class MostrarAutomoviles extends Stage{
         });
         tfModelo.getStyleClass().add("TextField");
         
-        // Linea
+        // Direccion
         tfLinea = new JFXTextField();
-        tfLinea.setPromptText("Telefono");
+        tfLinea.setPromptText("Linea");
         tfLinea.setLabelFloat(true);
         tfLinea.setLayoutX(40);
-        tfLinea.setLayoutY(340);
+        tfLinea.setLayoutY(349);
         tfLinea.setPrefHeight(30);
         tfLinea.setPrefWidth(250);
         tfLinea.getStyleClass().add("TextField");
         
-        // Color
         tfColor = new JFXTextField();
         tfColor.setPromptText("Color");
         tfColor.setLabelFloat(true);
         tfColor.setLayoutX(40);
-        tfColor.setLayoutY(400);
+        tfColor.setLayoutY(410);
         tfColor.setPrefHeight(30);
         tfColor.setPrefWidth(250);
         tfColor.getStyleClass().add("TextField");
@@ -304,39 +311,37 @@ public class MostrarAutomoviles extends Stage{
         
         btnAceptar.setOnAction(evt -> {
             if (validarDatos()) {
-//                nombre = tfNombre.getText();
-//                correo = tfCorreo.getText();
-//                direccion = tfDireccion.getText();
-//                telefono = tfTelefono.getText();
-//                
-//                ClienteJpaController controlador = new ClienteJpaController();
-//                
-//                if (editarCliente == false){
-//                    try {
-//                        idCliente = controlador.getClienteCount() + 1;
-//                        System.out.println(idCliente);
-//                        cliente = new Cliente (idCliente, nombre, telefono, direccion, correo);
-//                        controlador.crearCliente(cliente);
-//                        cargarClientes("");
-//                    } catch (Exception ex){
-//                        System.out.println(ex);
-//                    }
-//                } else {
-//                    System.out.println("Editar");
-//                    System.out.println(nombre);
-//                    System.out.println(idCliente);
-//                    try {
-//                        cliente = new Cliente (idCliente, nombre, telefono, direccion, correo);
-//                        controlador.editarCliente(cliente);
-//                        cargarClientes("");
-//                    } catch (Exception ex) {
-//                        System.out.println(ex);
-//                    }
-//                }
-                limpiarCamposEditar();
+                matricula = tfMatricula.getText();
+                matricula = matricula.toUpperCase();
+                marca = tfMarca.getText();
+                modelo = Integer.parseInt(tfModelo.getText());
+                linea = tfLinea.getText();
+                color = tfColor.getText();
+                
+                AutomovilJpaController controlador = new AutomovilJpaController();
+                
+                if (editarAutomovil == false){
+                    try {
+                        automovil = new Automovil (matricula, marca, modelo, linea , color, cliente);
+                        controlador.crear(automovil);
+                        cargarAutomoviles("");
+                    } catch (Exception ex){
+                        System.out.println(ex);
+                    }
+                } else {
+                    try {
+                        automovil = new Automovil (matricula, marca, modelo, linea , color, cliente);
+                        controlador.actualizar(automovil);
+                        cargarAutomoviles("");
+                    } catch (Exception ex) {
+                        System.out.println(ex);
+                    }
+                }
+            limpiarCamposEditar();
             }
         });
         
+        // Boton Cancelar
         JFXButton btnCancelar = new JFXButton();
         ImageView imageCancelar = new ImageView();
         imageCancelar.setImage(new Image("/resources/Cancelar.png"));
@@ -348,16 +353,16 @@ public class MostrarAutomoviles extends Stage{
         btnCancelar.setPrefWidth(126);
         
         btnCancelar.setOnAction(evt -> {
-            if (editarAuto == true){
+            if (editarAutomovil == true){
                 panelConsultar.setVisible(true);
                 panelEditar.setVisible(false);
                 this.centerOnScreen();
                 
-                administrarAutoConsultar.setText(matricula);
-                tfMarcaConsultar.setText(marca);
-                tfModeloConsultar.setText(Integer.toString(modelo));
-                tfLineaConsultar.setText(linea);
-                tfColorConsultar.setText(color);
+                administrarAutomovilConsultar.setText(automovil.getId());
+                tfMarcaConsultar.setText(automovil.getMarca());
+                tfModeloConsultar.setText(Integer.toString(automovil.getModelo()));
+                tfLineaConsultar.setText(automovil.getLinea());
+                tfColorConsultar.setText(automovil.getColor());
             } else {
                 panelEditar.setVisible(false);
                 this.setWidth(333);
@@ -366,31 +371,30 @@ public class MostrarAutomoviles extends Stage{
             limpiarCamposEditar();
         });
         
-        crearPanelAuto();
-        
-        panelEditar.getChildren().addAll(panelAuto, tfMatricula, tfMarca, tfModelo, tfLinea, tfColor, btnAceptar, btnCancelar);
+        crearPanelAutomovil();
+        panelEditar.getChildren().addAll(panelAutomovil, tfMatricula, tfMarca, tfModelo, tfLinea, tfColor, btnAceptar, btnCancelar);
     }
-    
-    private void crearPanelAutoConsultar() {
-        panelAutoConsultar = new AnchorPane();
-        panelAutoConsultar.setLayoutX(0);
-        panelAutoConsultar.setLayoutY(0);
-        panelAutoConsultar.setPrefHeight(143);
-        panelAutoConsultar.setPrefWidth(333);
-        panelAutoConsultar.getStyleClass().add("panelCliente");
+
+    private void crearPanelAutomovilConsultar() {
+        panelAutomovilConsultar = new AnchorPane();
+        panelAutomovilConsultar.setLayoutX(0);
+        panelAutomovilConsultar.setLayoutY(0);
+        panelAutomovilConsultar.setPrefHeight(143);
+        panelAutomovilConsultar.setPrefWidth(333);
+        panelAutomovilConsultar.getStyleClass().add("panelCliente");
         
-        administrarAutoConsultar = new Label();
-        administrarAutoConsultar.setLayoutX(140);
-        administrarAutoConsultar.setLayoutY(38);
-        administrarAutoConsultar.getStyleClass().add("administrarCliente");
-        administrarAutoConsultar.setText(matricula);
+        administrarAutomovilConsultar = new Label();
+        administrarAutomovilConsultar.setLayoutX(140);
+        administrarAutomovilConsultar.setLayoutY(38);
+        administrarAutomovilConsultar.getStyleClass().add("administrarCliente");
+        administrarAutomovilConsultar.setText(matricula);
         
-        ImageView imageAuto = new ImageView();
-        imageAuto.setImage(new Image("/resources/Coche_Blanco.png"));
-        imageAuto.setLayoutX(22);
-        imageAuto.setLayoutY(24);
-        imageAuto.setFitHeight(96);
-        imageAuto.setFitWidth(96);
+        ImageView imageAutomovil = new ImageView();
+        imageAutomovil.setImage(new Image("/resources/Coche_Blanco.png"));
+        imageAutomovil.setLayoutX(22);
+        imageAutomovil.setLayoutY(24);
+        imageAutomovil.setFitHeight(96);
+        imageAutomovil.setFitWidth(96);
         
         ImageView imageEditar = new ImageView();
         imageEditar.setImage(new Image("/resources/Editar.png"));
@@ -407,12 +411,13 @@ public class MostrarAutomoviles extends Stage{
             panelEditar.setVisible(true);
             panelConsultar.setVisible(false);
             
-            tfMatricula.setText(administrarAutoConsultar.getText());
+            tfMatricula.setText(administrarAutomovilConsultar.getText());
             tfMarca.setText(tfMarcaConsultar.getText());
             tfModelo.setText(tfModeloConsultar.getText());
             tfLinea.setText(tfLineaConsultar.getText());
             tfColor.setText(tfColorConsultar.getText());
-            editarAuto = true;
+           
+            editarAutomovil = true;
         });
         
         ImageView imageEliminar = new ImageView();
@@ -430,31 +435,32 @@ public class MostrarAutomoviles extends Stage{
             mostrarAlertaEliminar();
         });
         
-        panelAutoConsultar.getChildren().addAll(administrarAuto, imageAuto, btnEditar, btnEliminar);
+        panelAutomovilConsultar.getChildren().addAll(administrarAutomovilConsultar, imageAutomovil, btnEditar, btnEliminar);   
     }
     
-    private void crearPanelAuto() {
-        panelAuto = new AnchorPane();
-        panelAuto.setLayoutX(0);
-        panelAuto.setLayoutY(0);
-        panelAuto.setPrefHeight(143);
-        panelAuto.setPrefWidth(333);
-        panelAuto.getStyleClass().add("panelCliente");
+    private void crearPanelAutomovil() {
+        panelAutomovil = new AnchorPane();
+        panelAutomovil.setLayoutX(0);
+        panelAutomovil.setLayoutY(0);
+        panelAutomovil.setPrefHeight(143);
+        panelAutomovil.setPrefWidth(333);
+        panelAutomovil.getStyleClass().add("panelCliente");
         
-        administrarAuto = new Label();
-        administrarAuto.setLayoutX(140);
-        administrarAuto.setLayoutY(38);
-        administrarAuto.getStyleClass().add("administrarCliente");
-        administrarAuto.setText("Administrar 'n Automovil");
+        administrarAutomovil = new Label();
+        administrarAutomovil.setLayoutX(140);
+        administrarAutomovil.setLayoutY(38);
+        administrarAutomovil.getStyleClass().add("administrarCliente");
+        administrarAutomovil.setText("Administrar \n Automovil");
         
-        ImageView imageAuto = new ImageView();
-        imageAuto.setImage(new Image("/resources/Coche_Blanco.png"));
-        imageAuto.setLayoutX(22);
-        imageAuto.setLayoutY(24);
-        imageAuto.setFitHeight(96);
-        imageAuto.setFitWidth(96);
+        ImageView imageAutomovil = new ImageView();
+        imageAutomovil.setImage(new Image("/resources/Coche_Blanco.png"));
+        imageAutomovil.setLayoutX(22);
+        imageAutomovil.setLayoutY(24);
+        imageAutomovil.setFitHeight(96);
+        imageAutomovil.setFitWidth(96);
         
-        panelAuto.getChildren().addAll(administrarAuto, imageAuto);
+        panelAutomovil.getChildren().addAll(administrarAutomovil, imageAutomovil);
+        
     }
 
     private void crearBarraBusqueda() {
@@ -512,7 +518,7 @@ public class MostrarAutomoviles extends Stage{
         panelBusqueda.getChildren().addAll(barraBusqueda, btnDrawer);
     }
 
-    private void crearBotonAgregarAuto() {
+    private void crearBotonAgregarAutomovil() {
         ImageView imageAgregar = new ImageView();
         imageAgregar.setImage(new Image("/resources/Agregar.png"));
         imageAgregar.setFitHeight(60);
@@ -531,11 +537,11 @@ public class MostrarAutomoviles extends Stage{
             this.centerOnScreen();
             panelEditar.setVisible(true);
             panelConsultar.setVisible(false);
-            administrarAuto.setText("Agregar \n Automovil");
+            administrarAutomovil.setText("Agregar \n Cliente");
         });
     }
 
-    private void crearListaAutos() {
+    private void crearListaAutomoviles() {
         carList = new JFXListView();
         carList.setLayoutX(0);
         carList.setLayoutY(86);
@@ -550,17 +556,19 @@ public class MostrarAutomoviles extends Stage{
                 panelConsultar.setVisible(true);
                 panelEditar.setVisible(false);
                 
-                matricula = a.getId();
-                tfMarcaConsultar.setText(a.getMarca());
-                tfModeloConsultar.setText(a.getModelo());
-                tfLineaConsultar.setText(a.getLinea());
-                tfColorConsultar.setText(a.getColor());
+                automovil = new Automovil (a.getId(), a.getMarca(), a.getModelo(), a.getLinea(), a.getColor(), cliente);
                 
-                administrarAutoConsultar.setText(matricula);
+                // Recuperar automovil
+                administrarAutomovilConsultar.setText(automovil.getId());
+                tfMarcaConsultar.setText(automovil.getMarca());
+                tfModeloConsultar.setText(Integer.toString(automovil.getModelo()));
+                tfLineaConsultar.setText(automovil.getLinea());
+                tfColorConsultar.setText(automovil.getColor());
+                
             } 
         });
         
-        cargarAutos("");
+        cargarAutomoviles("");
     }
     
     public void mostrarAlerta(String mensaje, String titulo){
@@ -603,7 +611,7 @@ public class MostrarAutomoviles extends Stage{
         error.setFitWidth(30);
         
         Label header = new Label();
-        header.setText("  Eliminar Automovil");
+        header.setText("  Eliminar automovil");
         header.setGraphic(error);
         content.setHeading(header);
         
@@ -620,7 +628,7 @@ public class MostrarAutomoviles extends Stage{
             AutomovilJpaController controlador = new AutomovilJpaController();
             try {
                 controlador.destroy(matricula);
-                cargarAutos("");
+                cargarAutomoviles("");
                 panelConsultar.setVisible(false);
                 this.setWidth(333);
                 this.centerOnScreen();

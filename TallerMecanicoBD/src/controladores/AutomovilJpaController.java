@@ -38,6 +38,18 @@ public class AutomovilJpaController implements Serializable {
         return emf.createEntityManager();
     }
 
+    public void crear(Automovil a){
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            em.persist(a);
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            System.out.println("Error al crear un automovil");
+        }
+    }
+    
     public void create(Automovil automovil) throws PreexistingEntityException, Exception {
         EntityManager em = null;
         try {

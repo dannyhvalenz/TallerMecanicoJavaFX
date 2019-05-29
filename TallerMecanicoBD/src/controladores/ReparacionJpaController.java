@@ -7,6 +7,7 @@ package controladores;
 
 import controladores.exceptions.NonexistentEntityException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -16,6 +17,7 @@ import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import modelo.Automovil;
+import modelo.Cliente;
 import modelo.Reparacion;
 
 /**
@@ -23,12 +25,14 @@ import modelo.Reparacion;
  * @author dany
  */
 public class ReparacionJpaController implements Serializable {
-
+    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("TallerMecanicoBDPU");
+    
+    public ReparacionJpaController(){}
+    
     public ReparacionJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
-    private EntityManagerFactory emf = Persistence.createEntityManagerFactory("TallerMecanicoBDPU");
-
+    
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
@@ -166,4 +170,28 @@ public class ReparacionJpaController implements Serializable {
         }
     }
     
+    public List<Reparacion> findReparaciones(String tipo, Automovil idAutomovil) {
+        EntityManager em = getEntityManager();
+        try {
+            List<Reparacion> reparaciones = new ArrayList<Reparacion>();
+            reparaciones = em.createNamedQuery("Reparacion.findByTipoLike")
+                    .setParameter("idAutomovil", idAutomovil)
+                    .setParameter("tipo", tipo).getResultList();
+            return reparaciones;
+        } finally {
+            em.close();
+        }
+    }
+    
+    public List<Reparacion> getReparacionesAutomovil(Automovil idAutomovil){
+        EntityManager em = getEntityManager();
+        try {
+            List<Reparacion> reparaciones = new ArrayList<Reparacion>();
+            reparaciones = em.createNamedQuery("Reparacion.findAll").setParameter("idAutomovil", idAutomovil).getResultList();
+            return reparaciones;
+        } finally {
+            em.close();
+        }
+    }
+
 }

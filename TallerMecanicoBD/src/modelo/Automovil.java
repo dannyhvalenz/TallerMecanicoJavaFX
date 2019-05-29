@@ -39,6 +39,10 @@ import javax.xml.bind.annotation.XmlTransient;
     , @NamedQuery(name = "Automovil.update" , query = "UPDATE Automovil SET marca = :marca, modelo = :modelo , linea = :linea, color = :color WHERE matricula = :matricula")})
 public class Automovil implements Serializable {
 
+    @Basic(optional = false)
+    @Column(name = "modelo")
+    private int modelo;
+
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
@@ -47,9 +51,6 @@ public class Automovil implements Serializable {
     @Basic(optional = false)
     @Column(name = "marca")
     private String marca;
-    @Basic(optional = false)
-    @Column(name = "modelo")
-    private String modelo;
     @Basic(optional = false)
     @Column(name = "linea")
     private String linea;
@@ -69,15 +70,15 @@ public class Automovil implements Serializable {
         this.matricula = matricula;
     }
 
-    public Automovil(String matricula, String marca, String modelo, String linea, String color, Cliente cliente) {
+    public Automovil(String matricula, String marca, int modelo, String linea, String color, Cliente idCliente) {
+        this.modelo = modelo;
         this.matricula = matricula;
         this.marca = marca;
-        this.modelo = modelo;
         this.linea = linea;
         this.color = color;
-        this.idCliente = cliente;
+        this.idCliente = idCliente;
     }
-
+    
     public String getId() {
         return matricula;
     }
@@ -94,13 +95,6 @@ public class Automovil implements Serializable {
         this.marca = marca;
     }
 
-    public String getModelo() {
-        return modelo;
-    }
-
-    public void setModelo(String modelo) {
-        this.modelo = modelo;
-    }
 
     public String getLinea() {
         return linea;
@@ -158,6 +152,14 @@ public class Automovil implements Serializable {
     @Override
     public String toString() {
         return "controladores.Automovil[ matricula =" + matricula + " ]";
+    }
+
+    public int getModelo() {
+        return modelo;
+    }
+
+    public void setModelo(int modelo) {
+        this.modelo = modelo;
     }
     
 }

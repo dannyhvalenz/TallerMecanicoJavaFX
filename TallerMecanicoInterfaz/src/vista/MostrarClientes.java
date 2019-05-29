@@ -92,7 +92,7 @@ public class MostrarClientes extends Stage{
                     }
                     i++;
                 }
-            System.out.println("Elementos recuperados: "+i);
+            System.out.println("Clientes recuperados: " + i);
         } else {
             clientes = controlador.findClientes(nombreCliente);
             int i = 0;
@@ -214,7 +214,7 @@ public class MostrarClientes extends Stage{
         btnVerAutos.getStyleClass().add("botonVer");
         btnVerAutos.setOnAction(evt -> {
             System.out.println(cliente.getId());
-            MostrarAutomoviles2 autos = new MostrarAutomoviles2(nombreAdministrador, cliente);
+            MostrarAutomoviles autos = new MostrarAutomoviles(nombreAdministrador, cliente);
             autos.show();
             this.hide();
         });
