@@ -329,7 +329,7 @@ public class MostrarAutomoviles2 extends Stage{
                 } else {
                     try {
                         automovil = new Automovil (matricula, marca, modelo, linea , color, cliente);
-                        //controlador.editarCliente(cliente);
+                        controlador.actualizar(automovil);
                         cargarAutomoviles("");
                     } catch (Exception ex) {
                         System.out.println(ex);

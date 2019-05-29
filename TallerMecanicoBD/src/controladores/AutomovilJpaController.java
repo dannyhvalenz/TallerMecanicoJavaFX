@@ -65,6 +65,24 @@ public class AutomovilJpaController implements Serializable {
             }
         }
     }
+    
+    public void actualizar (Automovil automovil) {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            em.createNamedQuery("Automovil.update")
+                    .setParameter("matricula", automovil.getId())
+                    .setParameter("marca", automovil.getMarca())
+                    .setParameter("modelo", automovil.getModelo())
+                    .setParameter("linea", automovil.getLinea())
+                    .setParameter("color", automovil.getColor())
+                    .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            System.out.println("Error al actualizar el automovil");
+        }
+    }
 
     public void edit(Automovil automovil) throws NonexistentEntityException, Exception {
         EntityManager em = null;
