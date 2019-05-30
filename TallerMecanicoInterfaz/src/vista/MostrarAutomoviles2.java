@@ -9,14 +9,11 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXDrawer;
-import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
 import controladores.AutomovilJpaController;
 import java.util.List;
-import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
@@ -28,9 +25,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
 
 import modelo.Automovil;
 import modelo.Cliente;
@@ -39,12 +34,11 @@ import modelo.Cliente;
  *
  * @author dany
  */
-public class MostrarAutomoviles extends Stage{
+public class MostrarAutomoviles2 extends Stage{
     private JFXListView<Label> carList;
     private JFXTextField tfBuscar;
     private List<Automovil> automoviles;
     private JFXDrawer drawer;
-    private JFXHamburger btnDrawer;
     
     private JFXTextField tfMarca, tfModelo, tfLinea, tfMatricula, tfColor;
     
@@ -59,8 +53,9 @@ public class MostrarAutomoviles extends Stage{
     private int modelo;
     private Cliente cliente;
     private Automovil automovil;
+    private VBox box;
     
-    public MostrarAutomoviles(String nombreAdministrador, Cliente cliente){
+    public MostrarAutomoviles2(String nombreAdministrador, Cliente cliente){
         this.nombreAdministrador = nombreAdministrador;
         this.cliente = cliente;
         System.out.println("MA --> " + this.cliente.getId());
@@ -87,9 +82,8 @@ public class MostrarAutomoviles extends Stage{
         crearPanelEditarAutomovil();
         crearBotonAgregarAutomovil();
         crearDrawer();
-        setAnimation();
         
-        root.getChildren().addAll(panelBusqueda,carList, btnAgregar, panelEditar, panelConsultar, drawer);
+        root.getChildren().addAll(carList, panelBusqueda, btnAgregar, panelEditar, panelConsultar, box, drawer);
     }
     
     private void cargarAutomoviles(String matriculaBuscar) {
@@ -510,11 +504,22 @@ public class MostrarAutomoviles extends Stage{
         imageBuscar.setFitHeight(22);
         imageBuscar.setFitWidth(22);
         
-        btnDrawer = new JFXHamburger();
-        btnDrawer.getStyleClass().add("jfx-hamburger");
-        btnDrawer.setLayoutX(15);
-        btnDrawer.setLayoutY(35);
-        btnDrawer.setPrefSize(26, 17);
+        // Boton Drawer
+        JFXButton btnDrawer = new JFXButton();
+        ImageView imageDrawer = new ImageView();
+        imageDrawer.setImage(new Image("/resources/Menu.png"));
+        imageDrawer.setFitHeight(17);
+        imageDrawer.setFitWidth(26);
+        btnDrawer.setGraphic(imageDrawer);
+        btnDrawer.setLayoutX(7);
+        btnDrawer.setLayoutY(31);
+        btnDrawer.setOnAction(evt -> {
+            drawer.setSidePane(box);
+            drawer.setEffect(new DropShadow());
+            drawer.open();
+            drawer.setMouseTransparent(false);
+            //drawer.setVisible(true);
+        });
         
         barraBusqueda.getChildren().addAll(tfBuscar, imageBuscar);
         panelBusqueda.getChildren().addAll(barraBusqueda, btnDrawer);
@@ -669,10 +674,14 @@ public class MostrarAutomoviles extends Stage{
     }
     
     public void crearDrawer(){
+        box = new VBox();
+        box.setLayoutX(0);
+        box.setLayoutY(0);
+        
         drawer = new JFXDrawer();
         drawer.setPrefHeight(500);
         drawer.setPrefWidth(279);
-        drawer.setEffect(new DropShadow());
+        drawer.setVisible(false);
         
         AnchorPane panelDrawer = new AnchorPane();
         panelDrawer.setPrefHeight(500);
@@ -707,7 +716,7 @@ public class MostrarAutomoviles extends Stage{
         ruta.setPrefWidth(190);
         ruta.setLayoutX(45);
         ruta.setLayoutY(127);
-        ruta.setStyle("-fx-font-size:10pt; -fx-font-family: Futura; -fx-text-fill:#ffffff;");
+        ruta.getStyleClass().add("ruta");
         
         JFXButton btnBuscarCliente = new JFXButton();
         btnBuscarCliente.setGraphic(new ImageView(new Image("/resources/Avatar_Drawer.png")));
@@ -732,7 +741,7 @@ public class MostrarAutomoviles extends Stage{
         btnBuscarAutomovil.setLayoutY(211);
         btnBuscarAutomovil.getStyleClass().add("botonesDrawer");
         btnBuscarAutomovil.setOnAction(evt -> {
-            drawer.setVisible(false);
+            drawer.close();
         });
         
         JFXButton btnSalir = new JFXButton();
@@ -752,27 +761,8 @@ public class MostrarAutomoviles extends Stage{
         panelSuperior.getChildren().addAll(nombreAdmin, imagenAdmin, ruta);
         panelDrawer.getChildren().addAll(panelSuperior, btnBuscarCliente, btnBuscarAutomovil, btnSalir);
         drawer.getChildren().add(panelDrawer);
+        box.getChildren().add(drawer);
         
-    }
-    
-    private void setAnimation(){
-        drawer.prefHeightProperty().bind(root.heightProperty());
-        drawer.setPrefWidth(279);
-        drawer.setTranslateX(-300);
-        TranslateTransition menuTranslation = new TranslateTransition(Duration.millis(500), drawer);
-
-        menuTranslation.setFromX(-300);
-        menuTranslation.setToX(0);
-        
-        btnDrawer.setOnMouseClicked(evt -> {
-            menuTranslation.setRate(1);
-            menuTranslation.play();
-        });
-        
-        drawer.setOnMouseExited(evt -> {
-            menuTranslation.setRate(-1);
-            menuTranslation.play();
-        });
     }
     
 }

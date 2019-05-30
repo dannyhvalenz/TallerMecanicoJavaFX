@@ -50,6 +50,7 @@ public class IniciarSesion extends Stage{
         scene.getStylesheets().add(getClass().getResource("/vista/styles.css").toExternalForm());
         root.getStyleClass().add("background");
         setScene(scene);
+        setResizable(false);
         
         crearComponentes();
 
@@ -96,9 +97,10 @@ public class IniciarSesion extends Stage{
         iniciarSesion.setOnAction(evt -> {
             if (validarCampos()){
                 if(validarUsuario()){
-                MostrarClientes clientes = new MostrarClientes(nombreAdmin);
-                clientes.show();
-                this.hide();
+                    nombreAdmin = nombreAdmin.replaceAll("\\s+", "\n");
+                    MostrarClientes clientes = new MostrarClientes(nombreAdmin);
+                    clientes.show();
+                    this.hide();
                 } else {
                     mostrarAlerta("Correo o contraseña incorrectos", "Datos inválidos");
                 }

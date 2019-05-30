@@ -37,6 +37,18 @@ public class ReparacionJpaController implements Serializable {
         return emf.createEntityManager();
     }
 
+    public void crear(Reparacion r) {
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            em.persist(r);
+            em.getTransaction().commit();
+        } catch (Exception e){
+            System.out.println("Error al crear la reparacion");
+        }
+    }
+    
     public void create(Reparacion reparacion) {
         EntityManager em = null;
         try {

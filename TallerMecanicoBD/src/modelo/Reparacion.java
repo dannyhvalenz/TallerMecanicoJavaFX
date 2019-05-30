@@ -6,10 +6,7 @@
 package modelo;
 
 import java.io.Serializable;
-import java.sql.Time;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Date;
+import java.sql.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -43,14 +40,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Reparacion implements Serializable {
 
     @Basic(optional = false)
-    @Column(name = "hora")
-    @Temporal(TemporalType.DATE)
-    private Date hora;
-
-    @Basic(optional = false)
     @Column(name = "fecha")
     @Temporal(TemporalType.DATE)
-    private Date fecha;
+    private java.util.Date fecha;
+
+    @Basic(optional = false)
+    @Column(name = "hora")
+    @Temporal(TemporalType.DATE)
+    private java.util.Date hora;
 
     @Basic(optional = false)
     @Column(name = "costo")
@@ -73,7 +70,7 @@ public class Reparacion implements Serializable {
     @Basic(optional = false)
     @Column(name = "descripcionMantenimiento")
     private String descripcionMantenimiento;
-    @JoinColumn(name = "idAutomovil", referencedColumnName = "id")
+    @JoinColumn(name = "idAutomovil", referencedColumnName = "matricula")
     @ManyToOne(optional = false)
     private Automovil idAutomovil;
 
@@ -181,19 +178,19 @@ public class Reparacion implements Serializable {
         this.costo = costo;
     }
 
-    public Date getFecha() {
+    public java.util.Date getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(java.util.Date fecha) {
         this.fecha = fecha;
     }
 
-    public Date getHora() {
+    public java.util.Date getHora() {
         return hora;
     }
 
-    public void setHora(Date hora) {
+    public void setHora(java.util.Date hora) {
         this.hora = hora;
     }
     

@@ -10,30 +10,50 @@ import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
+import com.jfoenix.controls.JFXDrawer;
+import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXTimePicker;
 import controladores.ReparacionJpaController;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import modelo.Automovil;
 import modelo.Cliente;
@@ -47,10 +67,9 @@ public class MostrarReparaciones2 extends Stage{
     private JFXListView<Label> repList;
     private JFXTextField tfBuscar;
     private List<Reparacion> reparaciones;
-    
-    //private String[] tipoReparaciones = {"Alineacion y balanceo", "Motor", "Aceite"};
-    private JFXComboBox<String> cbTipo = new JFXComboBox<>();
-    
+    private JFXHamburger btnDrawer;
+
+    private JFXComboBox<String> cbTipo;    
     private JFXTextField tfTipo, tfKilometraje, tfCosto;
     private JFXTextArea tfDesFalla, tfDesMantenimiento;
     private JFXDatePicker dpFecha;
@@ -60,6 +79,7 @@ public class MostrarReparaciones2 extends Stage{
     private JFXTextArea tfDesFallaConsultar, tfDesMantenimientoConsultar;
     private JFXDatePicker dpFechaConsultar;
     private JFXTimePicker dpHoraConsultar;
+    private JFXDrawer drawer;
     
     private AnchorPane root, panelEditar, panelReparacion, panelBusqueda, panelConsultar, panelReparacionConsultar;
     private JFXButton btnAgregar, btnEditar, btnEliminar;
@@ -69,21 +89,24 @@ public class MostrarReparaciones2 extends Stage{
     private Date fecha;
     private Date hora;
     private int costo, idReparacion;
-    private String tipo, kilometraje, descripcionFalla, descripcionMantenimiento, nombreAdministrador;
+    private String tipo, kilometraje, descripcionFalla, descripcionMantenimiento;
+    private String nombreAdministrador;
     private Cliente cliente;
     private Automovil automovil;
     private Reparacion reparacion;
-    
+
     public MostrarReparaciones2(String nombreAdministrador, Cliente cliente, Automovil automovil){
         this.nombreAdministrador = nombreAdministrador;
+        System.out.println(this.nombreAdministrador);
         this.cliente = cliente;
         this.automovil = automovil;
+        System.out.println(automovil.toString());
         System.out.println(this.cliente.getId() + " --> " + this.automovil.getId());
         configurarPanel(); 
-        buscarAutomovil();
+        buscarReparacion();
     }
     
-    private void buscarAutomovil(){
+    private void buscarReparacion(){
         tfBuscar.setOnKeyTyped(evt -> {
             cargarReparaciones(tfBuscar.getText());
         });
@@ -94,14 +117,17 @@ public class MostrarReparaciones2 extends Stage{
         Scene scene = new Scene(root,333,500); 
         scene.getStylesheets().add(getClass().getResource("/vista/styles.css").toExternalForm());
         setScene(scene);
+        setResizable(false);
         
-        crearListaAutomoviles();
+        crearListaReparaciones();
         crearBarraBusqueda();
         crearPanelConsultarReparacion();
         crearPanelEditarReparacion();
         crearBotonAgregarReparacion();
+        crearDrawer();
+        setAnimation();
         
-        root.getChildren().addAll(repList, panelBusqueda, btnAgregar, panelEditar, panelConsultar);
+        root.getChildren().addAll(repList, panelBusqueda, btnAgregar, panelEditar, panelConsultar,drawer);
     }
     
     private void cargarReparaciones(String tipoRepBuscar) {
@@ -109,7 +135,6 @@ public class MostrarReparaciones2 extends Stage{
         ReparacionJpaController controlador = new ReparacionJpaController();
         
         if(tipoRepBuscar.equals("")){
-            System.out.println(automovil.getId());
             reparaciones = controlador.getReparacionesAutomovil(automovil);
             int i = 0;
             for (Reparacion r : reparaciones) {
@@ -147,11 +172,11 @@ public class MostrarReparaciones2 extends Stage{
     
     private boolean validarDatos() {
         boolean valido = true;
-        String validarTipo = tfTipo.getText();
+        String validarTipo = cbTipo.getSelectionModel().getSelectedItem().toString();
         String validarKilometraje = tfKilometraje.getText();
         String validarCosto =  tfCosto.getText();
-        LocalDate validarFecha =  dpFecha.getValue();
-        LocalTime validarHora = dpHora.getValue();
+        String validarFecha = dpFecha.getValue().toString();
+        String validarHora = dpHora.getValue().toString();
         String validarFalla =  tfDesFalla.getText();
         String validarMantenimiento = tfDesMantenimiento.getText();
         String errores = "";
@@ -173,7 +198,13 @@ public class MostrarReparaciones2 extends Stage{
         }
         
         if(validarMantenimiento.trim().length() == 0){
-            errores += "* La descripcion del mantenimiento no debe estar vacio \n";
+            errores += "* La descripcion del mantenimiento no debe estar vacia \n";
+        }
+        if(validarFecha.trim().length() == 0){
+            errores += "* La fecha no debe estar vacia \n";
+        }
+        if(validarHora.trim().length() == 0){
+            errores += "* La hora no debe estar vacia \n";
         }
         
         if (errores.length() == 0){
@@ -189,7 +220,6 @@ public class MostrarReparaciones2 extends Stage{
     }
 
     private void crearPanelConsultarReparacion() {
-        // Panel Consultar Cliente
         panelConsultar = new AnchorPane();
         panelConsultar.setLayoutX(333);
         panelConsultar.setLayoutY(0);
@@ -201,7 +231,7 @@ public class MostrarReparaciones2 extends Stage{
         tfKilometrajeConsultar.setPromptText("Kilometraje");
         tfKilometrajeConsultar.setLabelFloat(true);
         tfKilometrajeConsultar.setLayoutX(40);
-        tfKilometrajeConsultar.setLayoutY(262);
+        tfKilometrajeConsultar.setLayoutY(228);
         tfKilometrajeConsultar.setPrefHeight(30);
         tfKilometrajeConsultar.setPrefWidth(250);
         tfKilometrajeConsultar.setEditable(false);
@@ -269,15 +299,20 @@ public class MostrarReparaciones2 extends Stage{
         panelEditar.setPrefWidth(455);
         panelEditar.setVisible(false);
         
-        tfTipo = new JFXTextField();
-        tfTipo.setPromptText("Tipo de reparacion");
-        tfTipo.setLabelFloat(true);
-        tfTipo.setLayoutX(40);
-        tfTipo.setLayoutY(159);
-        tfTipo.setPrefHeight(30);
-        tfTipo.setPrefWidth(250);
-        tfTipo.setEditable(false);
-        tfTipo.getStyleClass().add("TextField");
+        ObservableList lista = FXCollections.observableArrayList("Mecanico", "Electrico", "Lubricacion", 
+            "Hojalateria", "Llantas", "Vestiduras", "Mofles");
+        
+        cbTipo = new JFXComboBox();
+        cbTipo.setItems(lista);
+        cbTipo.getSelectionModel().selectFirst();
+        cbTipo.setLabelFloat(true);
+        cbTipo.setPromptText("Tipo de reparacion");
+        cbTipo.setLabelFloat(true);
+        cbTipo.setLayoutX(40);
+        cbTipo.setLayoutY(165);
+        cbTipo.setPrefHeight(30);
+        cbTipo.setPrefWidth(250);
+        cbTipo.getStyleClass().add("TextField");
 
         tfKilometraje = new JFXTextField();
         tfKilometraje.setPromptText("Kilometraje");
@@ -286,8 +321,17 @@ public class MostrarReparaciones2 extends Stage{
         tfKilometraje.setLayoutY(228);
         tfKilometraje.setPrefHeight(30);
         tfKilometraje.setPrefWidth(250);
-        tfKilometraje.setEditable(false);
         tfKilometraje.getStyleClass().add("TextField");
+        tfKilometraje.setOnKeyTyped(e -> {
+            try {
+                char input = e.getCharacter().charAt(0);
+                if (Character.isDigit(input) != true) {
+                    e.consume();
+                }
+            } catch (Exception ex){
+                System.out.println("El kilometraje solo puede contener digitos");
+            }
+        });
 
         tfCosto = new JFXTextField();
         tfCosto.setPromptText("Costo");
@@ -296,8 +340,17 @@ public class MostrarReparaciones2 extends Stage{
         tfCosto.setLayoutY(323);
         tfCosto.setPrefHeight(30);
         tfCosto.setPrefWidth(110);
-        tfCosto.setEditable(false);
         tfCosto.getStyleClass().add("TextField");
+        tfCosto.setOnKeyTyped(e -> {
+            try {
+                char input = e.getCharacter().charAt(0);
+                if (Character.isDigit(input) != true) {
+                    e.consume();
+                }
+            } catch (Exception ex){
+                System.out.println("El costo solo puede contener digitos");
+            }
+        });
         
         tfDesFalla = new JFXTextArea();
         tfDesFalla.setPromptText("Descripcion de la Falla");
@@ -323,7 +376,7 @@ public class MostrarReparaciones2 extends Stage{
         dpHora.setLayoutY(228);
         dpHora.setPrefHeight(30);
         dpHora.setPrefWidth(110);
-        //dpHora.getStyleClass().add("TextField");
+        dpHora.getStyleClass().add("jfx-date-picker");
         
         dpFecha = new JFXDatePicker();
         dpFecha.setPromptText("Fecha");
@@ -331,7 +384,7 @@ public class MostrarReparaciones2 extends Stage{
         dpFecha.setLayoutY(168);
         dpFecha.setPrefHeight(30);
         dpFecha.setPrefWidth(110);
-        //dpHora.getStyleClass().add("TextField");
+        dpFecha.getStyleClass().add("jfx-date-picker");
         
         // Boton Aceptar
         JFXButton btnAceptar = new JFXButton();
@@ -349,8 +402,14 @@ public class MostrarReparaciones2 extends Stage{
                 ReparacionJpaController controlador = new ReparacionJpaController();
                 
                 fecha = Date.valueOf(dpFecha.getValue());
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(0, 0, 0, dpHora.getValue().getHour(), dpHora.getValue().getMinute(), dpHora.getValue().getSecond());
                 
-                hora = Date.valueOf(dpHora.getValue().toString());
+                java.util.Date d = calendar.getTime();
+                java.sql.Date sd = new java.sql.Date(d.getTime());
+                
+                hora = sd;
                 costo = Integer.parseInt(tfCosto.getText());
                 tipo = tfTipo.getText();
                 kilometraje = tfKilometraje.getText();
@@ -361,7 +420,7 @@ public class MostrarReparaciones2 extends Stage{
                     try {
                         idReparacion = controlador.getReparacionCount() + 1;
                         reparacion = new Reparacion (fecha, hora, costo, idReparacion, tipo, kilometraje, descripcionFalla, descripcionMantenimiento, automovil);
-                        controlador.create(reparacion);
+                        controlador.crear(reparacion);
                         cargarReparaciones("");
                     } catch (Exception ex){
                         System.out.println(ex);
@@ -407,8 +466,8 @@ public class MostrarReparaciones2 extends Stage{
                 cal.setTime(reparacion.getFecha());
                 LocalDate date = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
                 dpFechaConsultar.setValue(date);
-
-                // Hora
+                
+                // Hora                
                 Instant instant = Instant.ofEpochMilli(reparacion.getHora().getTime());
                 LocalTime res = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalTime();
                 dpHoraConsultar.setValue(res);
@@ -421,7 +480,7 @@ public class MostrarReparaciones2 extends Stage{
         });
         
         crearPanelReparacion();
-        panelEditar.getChildren().addAll(panelReparacion, tfTipo, tfKilometraje, tfCosto, tfDesFalla, tfDesMantenimiento, dpHora, dpFecha, btnAceptar, btnCancelar);
+        panelEditar.getChildren().addAll(panelReparacion, cbTipo, tfKilometraje, tfCosto, tfDesFalla, tfDesMantenimiento, dpHora, dpFecha, btnAceptar, btnCancelar);
     }
 
     private void crearPanelReparacionConsultar() {
@@ -466,13 +525,11 @@ public class MostrarReparaciones2 extends Stage{
             tfDesFalla.setText(reparacion.getDescripcionFalla());
             tfDesMantenimiento.setText(reparacion.getDescripcionMantenimiento());
             
-            //Fecha
             Calendar cal = Calendar.getInstance();
             cal.setTime(reparacion.getFecha());
             LocalDate date = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
             dpFecha.setValue(date);
 
-            // Hora
             Instant instant = Instant.ofEpochMilli(reparacion.getHora().getTime());
             LocalTime res = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalTime();
             dpHora.setValue(res);
@@ -520,11 +577,9 @@ public class MostrarReparaciones2 extends Stage{
         imageReparacion.setFitWidth(96);
         
         panelReparacion.getChildren().addAll(administrarReparacion, imageReparacion);
-        
     }
 
     private void crearBarraBusqueda() {
-        // Panel de busqueda
         panelBusqueda = new AnchorPane();
         panelBusqueda.setPrefHeight(87);
         panelBusqueda.setPrefWidth(333);
@@ -532,7 +587,6 @@ public class MostrarReparaciones2 extends Stage{
         panelBusqueda.setLayoutX(0);
         panelBusqueda.setLayoutY(0);
         
-        // Panel de busqueda - Barra de busqueda
         AnchorPane barraBusqueda = new AnchorPane();
         barraBusqueda.setLayoutX(58);
         barraBusqueda.setLayoutY(27);
@@ -540,9 +594,8 @@ public class MostrarReparaciones2 extends Stage{
         barraBusqueda.setPrefWidth(260);
         barraBusqueda.getStyleClass().add("barraBusqueda");
         
-        // TextField Buscar
         tfBuscar = new JFXTextField();
-        tfBuscar.setPromptText("Buscar Automovil");
+        tfBuscar.setPromptText("Buscar Reparacion");
         tfBuscar.setLayoutX(34);
         tfBuscar.setLayoutY(3);
         tfBuscar.setPrefHeight(21);
@@ -551,7 +604,6 @@ public class MostrarReparaciones2 extends Stage{
         tfBuscar.setUnFocusColor(Color.WHITE);
         tfBuscar.getStyleClass().add("Buscar");
         
-        // Imagen Lupa
         ImageView imageBuscar = new ImageView();
         imageBuscar.setImage(new Image("/resources/Buscar2.png"));
         imageBuscar.setLayoutX(6);
@@ -559,20 +611,11 @@ public class MostrarReparaciones2 extends Stage{
         imageBuscar.setFitHeight(22);
         imageBuscar.setFitWidth(22);
         
-        // Boton Drawer
-        JFXButton btnDrawer = new JFXButton();
-        ImageView imageDrawer = new ImageView();
-        imageDrawer.setImage(new Image("/resources/Menu.png"));
-        imageDrawer.setFitHeight(17);
-        imageDrawer.setFitWidth(26);
-        btnDrawer.setGraphic(imageDrawer);
-        btnDrawer.setLayoutX(7);
-        btnDrawer.setLayoutY(31);
-        btnDrawer.setOnAction(evt -> {
-            IniciarSesion iniciarSesion = new IniciarSesion();
-            iniciarSesion.show();
-            this.close();
-        });
+        btnDrawer = new JFXHamburger();
+        btnDrawer.getStyleClass().add("jfx-hamburger");
+        btnDrawer.setLayoutX(15);
+        btnDrawer.setLayoutY(35);
+        btnDrawer.setPrefSize(26, 17);
         
         barraBusqueda.getChildren().addAll(tfBuscar, imageBuscar);
         panelBusqueda.getChildren().addAll(barraBusqueda, btnDrawer);
@@ -601,7 +644,7 @@ public class MostrarReparaciones2 extends Stage{
         });
     }
 
-    private void crearListaAutomoviles() {
+    private void crearListaReparaciones() {
         repList = new JFXListView();
         repList.setLayoutX(0);
         repList.setLayoutY(86);
@@ -609,6 +652,7 @@ public class MostrarReparaciones2 extends Stage{
         repList.setPrefWidth(333);
         
         repList.setOnMouseClicked((MouseEvent click) -> {
+           
             if (click.getClickCount() == 2) {
                 Reparacion r = reparaciones.get(repList.getSelectionModel().getSelectedIndex());
                 this.setWidth(787);
@@ -616,19 +660,127 @@ public class MostrarReparaciones2 extends Stage{
                 panelConsultar.setVisible(true);
                 panelEditar.setVisible(false);
                 
-//                automovil = new Automovil (a.getId(), a.getMarca(), a.getModelo(), a.getLinea(), a.getColor(), cliente);
-//                
-//                // Recuperar automovil
-//                administrarAutomovilConsultar.setText(automovil.getId());
-//                tfMarcaConsultar.setText(automovil.getMarca());
-//                tfModeloConsultar.setText(automovil.getModelo());
-//                tfLineaConsultar.setText(automovil.getLinea());
-//                tfColorConsultar.setText(automovil.getColor());
+                reparacion = r;
                 
+                reparacion.setId(r.getId());
+                reparacion.setTipo(r.getTipo());
+                reparacion.setKilometraje(r.getKilometraje());
+                reparacion.setDescripcionFalla(r.getDescripcionFalla());
+                reparacion.setDescripcionMantenimiento(r.getDescripcionMantenimiento());
+                reparacion.setIdAutomovil(r.getIdAutomovil());
+                
+                administrarReparacionConsultar.setText(reparacion.getTipo());
+                tfCostoConsultar.setText(Integer.toString(reparacion.getCosto()));
+                tfKilometrajeConsultar.setText(reparacion.getKilometraje());
+                tfDesFallaConsultar.setText(reparacion.getDescripcionFalla());
+                tfDesMantenimientoConsultar.setText(reparacion.getDescripcionMantenimiento());
+                
+                reparacion.setFecha(r.getFecha());
+                reparacion.setHora(r.getHora());
+                
+                //Fecha
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(reparacion.getFecha());
+                LocalDate date = LocalDate.of(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
+                dpFechaConsultar.setValue(date);
+
+                // Hora
+                Instant instant = Instant.ofEpochMilli(reparacion.getHora().getTime());
+                LocalTime res = LocalDateTime.ofInstant(instant, ZoneId.systemDefault()).toLocalTime();
+                dpHoraConsultar.setValue(res);
             } 
         });
         
         cargarReparaciones("");
+    }
+    
+    public void crearDrawer(){
+        drawer = new JFXDrawer();
+        drawer.setPrefHeight(500);
+        drawer.setPrefWidth(279);
+        drawer.setEffect(new DropShadow());
+        
+        AnchorPane panelDrawer = new AnchorPane();
+        panelDrawer.setPrefHeight(500);
+        panelDrawer.setPrefWidth(279);
+        panelDrawer.setLayoutX(147);
+        panelDrawer.setLayoutY(279);
+        panelDrawer.getStyleClass().add("background");
+        
+        AnchorPane panelSuperior = new AnchorPane();
+        panelSuperior.setPrefHeight(147);
+        panelSuperior.setPrefWidth(279);
+        panelSuperior.setPrefHeight(147);
+        panelSuperior.setPrefWidth(279);
+        panelSuperior.getStyleClass().add("panelSuperior");
+        
+        Label nombreAdmin = new Label();
+        nombreAdmin.setText(nombreAdministrador);
+        nombreAdmin.setPrefWidth(135);
+        nombreAdmin.setLayoutX(120);
+        nombreAdmin.setLayoutY(33);
+        nombreAdmin.getStyleClass().add("administrarCliente");
+        
+        ImageView imagenAdmin = new ImageView();
+        imagenAdmin.setImage(new Image("/resources/Avatar_Blanco.png"));
+        imagenAdmin.setFitHeight(96);
+        imagenAdmin.setFitWidth(96);
+        imagenAdmin.setLayoutX(12);
+        imagenAdmin.setLayoutY(13);
+        
+        Label ruta = new Label();
+        ruta.setText(cliente.getNombre() + " --> " + automovil.getId());
+        ruta.setPrefWidth(190);
+        ruta.setLayoutX(45);
+        ruta.setLayoutY(127);
+        Font fuenteRuta = new Font("Futura", 8);
+        ruta.setStyle("-fx-font-size:10pt; -fx-font-family: Futura; -fx-text-fill:#ffffff;");
+        
+        JFXButton btnBuscarCliente = new JFXButton();
+        btnBuscarCliente.setGraphic(new ImageView(new Image("/resources/Avatar_Drawer.png")));
+        btnBuscarCliente.setText("Buscar Cliente");
+        btnBuscarCliente.setPrefHeight(30);
+        btnBuscarCliente.setPrefWidth(150);
+        btnBuscarCliente.setLayoutX(11);
+        btnBuscarCliente.setLayoutY(167);
+        btnBuscarCliente.getStyleClass().add("botonesDrawer");
+        btnBuscarCliente.setOnAction(evt -> {
+            MostrarClientes ventanaClientes = new MostrarClientes(nombreAdministrador);
+            ventanaClientes.show();
+            this.hide();
+        });
+        
+        JFXButton btnBuscarAutomovil = new JFXButton();
+        btnBuscarAutomovil.setGraphic(new ImageView(new Image("/resources/Coche_Drawer.png")));
+        btnBuscarAutomovil.setText("Buscar Automovil");
+        btnBuscarAutomovil.setPrefHeight(25);
+        btnBuscarAutomovil.setPrefWidth(177);
+        btnBuscarAutomovil.setLayoutX(11);
+        btnBuscarAutomovil.setLayoutY(211);
+        btnBuscarAutomovil.getStyleClass().add("botonesDrawer");
+        btnBuscarAutomovil.setOnAction(evt -> {
+            MostrarAutomoviles ventanaAutomoviles = new MostrarAutomoviles(nombreAdministrador, cliente);
+            ventanaAutomoviles.show();
+            this.hide();
+        });
+        
+        JFXButton btnSalir = new JFXButton();
+        btnSalir.setGraphic(new ImageView(new Image("/resources/Salir.png")));
+        btnSalir.setText("Cerrar Sesion");
+        btnSalir.setPrefHeight(30);
+        btnSalir.setPrefWidth(156);
+        btnSalir.setLayoutX(11);
+        btnSalir.setLayoutY(456);
+        btnSalir.getStyleClass().add("botonesDrawer");
+        btnSalir.setOnAction(evt -> {
+            IniciarSesion inicio = new IniciarSesion();
+            inicio.show();
+            this.hide();
+        });
+        
+        panelSuperior.getChildren().addAll(nombreAdmin, imagenAdmin, ruta);
+        panelDrawer.getChildren().addAll(panelSuperior, btnBuscarCliente, btnBuscarAutomovil, btnSalir);
+        drawer.getChildren().add(panelDrawer);
     }
     
     public void mostrarAlerta(String mensaje, String titulo){
@@ -644,7 +796,7 @@ public class MostrarReparaciones2 extends Stage{
         content.setHeading(header);
         content.getStyleClass().add("mensaje");
         content.setBody(new Text(mensaje));
-        content.setPrefSize(250, 100);
+        content.setPrefSize(300, 100);
         StackPane stackPane = new StackPane();
         stackPane.autosize();
         JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
@@ -658,7 +810,7 @@ public class MostrarReparaciones2 extends Stage{
         content.setActions(button);
         root.getChildren().add(stackPane);
         AnchorPane.setTopAnchor(stackPane, (500 - content.getPrefHeight()) / 2);
-        AnchorPane.setLeftAnchor(stackPane, (panelEditar.getWidth() + (panelEditar.getWidth() - content.getPrefWidth()) / 2));
+        AnchorPane.setLeftAnchor(stackPane, 410.50);
         dialog.show();  
     }
     
@@ -671,13 +823,13 @@ public class MostrarReparaciones2 extends Stage{
         error.setFitWidth(30);
         
         Label header = new Label();
-        header.setText("  Eliminar automovil");
+        header.setText("  Eliminar Reparacion");
         header.setGraphic(error);
         content.setHeading(header);
         
         content.getStyleClass().add("mensaje");
-        content.setBody(new Text("¿Desea eliminar este automovil?"));
-        content.setPrefSize(250, 100);
+        content.setBody(new Text("¿Desea eliminar esta reparacion?"));
+        content.setPrefSize(300, 100);
         StackPane stackPane = new StackPane();
         stackPane.autosize();
         JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
@@ -714,8 +866,8 @@ public class MostrarReparaciones2 extends Stage{
         content.setActions(btnSi, btnNo);
         root.getChildren().add(stackPane);
         AnchorPane.setTopAnchor(stackPane, (500 - content.getPrefHeight()) / 2);
-        AnchorPane.setLeftAnchor(stackPane, (panelEditar.getWidth() + (panelEditar.getWidth() - content.getPrefWidth()) / 2));
-        dialog.show();  
+        AnchorPane.setLeftAnchor(stackPane, 410.50);
+        dialog.show();
     }
 
     private void limpiarCamposEditar() {
@@ -726,4 +878,43 @@ public class MostrarReparaciones2 extends Stage{
         tfDesMantenimiento.setText("");
     }
     
+    public String separarNombre(String nombreAdministrador){
+        String nombre_nuevo = "";
+        for (int i = 0; i < nombreAdministrador.length(); i++){
+            char c = nombreAdministrador.charAt(i);
+            if (i >= 1){
+                if(Character.isUpperCase(c)){               
+                    nombre_nuevo = nombre_nuevo + " " + c;
+                } else {
+                    nombre_nuevo = nombre_nuevo + c;
+                }
+            } else {
+                nombre_nuevo = nombre_nuevo + c;
+            }
+        }
+        return nombre_nuevo;
+    }
+   
+    private void setAnimation(){
+        drawer.prefHeightProperty().bind(root.heightProperty());
+        drawer.setPrefWidth(279);
+        drawer.setTranslateX(-300);
+        TranslateTransition menuTranslation = new TranslateTransition(Duration.millis(500), drawer);
+
+        menuTranslation.setFromX(-300);
+        menuTranslation.setToX(0);
+        
+        btnDrawer.setOnMouseClicked(evt -> {
+            menuTranslation.setRate(1);
+            menuTranslation.play();
+        });
+        
+        drawer.setOnMouseExited(evt -> {
+            menuTranslation.setRate(-1);
+            menuTranslation.play();
+        });
+    }
+    
+    
+        
 }

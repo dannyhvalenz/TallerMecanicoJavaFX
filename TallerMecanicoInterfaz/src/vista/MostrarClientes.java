@@ -3,14 +3,18 @@ package vista;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
+import com.jfoenix.controls.JFXDrawer;
+import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 import controladores.ClienteJpaController;
 import java.util.List;
+import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -18,7 +22,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import modelo.Cliente;
 
@@ -30,6 +36,8 @@ public class MostrarClientes extends Stage{
     private JFXListView<Label> clientList;
     private JFXTextField tfBuscar;
     private List<Cliente> clientes;
+    private JFXDrawer drawer;
+    private JFXHamburger btnDrawer;
     
     private JFXTextField tfNombre, tfCorreo, tfTelefono;
     private JFXTextArea tfDireccion;
@@ -63,14 +71,17 @@ public class MostrarClientes extends Stage{
         Scene scene = new Scene(root,333,500); 
         scene.getStylesheets().add(getClass().getResource("/vista/styles.css").toExternalForm());
         setScene(scene);
+        setResizable(false);
         
         crearListaClientes();
         crearBarraBusqueda();
         crearPanelConsultarCliente();
         crearPanelEditarCliente();
         crearBotonAgregarCliente();
+        crearDrawer();
+        setAnimation();
         
-        root.getChildren().addAll(clientList, panelBusqueda, btnAgregar, panelEditar, panelConsultar);
+        root.getChildren().addAll(clientList, panelBusqueda, btnAgregar, panelEditar, panelConsultar, drawer);
     }
     
     private void cargarClientes(String nombreCliente) {
@@ -488,20 +499,11 @@ public class MostrarClientes extends Stage{
         imageBuscar.setFitHeight(22);
         imageBuscar.setFitWidth(22);
         
-        // Boton Drawer
-        JFXButton btnDrawer = new JFXButton();
-        ImageView imageDrawer = new ImageView();
-        imageDrawer.setImage(new Image("/resources/Menu.png"));
-        imageDrawer.setFitHeight(17);
-        imageDrawer.setFitWidth(26);
-        btnDrawer.setGraphic(imageDrawer);
-        btnDrawer.setLayoutX(7);
-        btnDrawer.setLayoutY(31);
-        btnDrawer.setOnAction(evt -> {
-            IniciarSesion iniciarSesion = new IniciarSesion();
-            iniciarSesion.show();
-            this.close();
-        });
+        btnDrawer = new JFXHamburger();
+        btnDrawer.getStyleClass().add("jfx-hamburger");
+        btnDrawer.setLayoutX(15);
+        btnDrawer.setLayoutY(35);
+        btnDrawer.setPrefSize(26, 17);
         
         barraBusqueda.getChildren().addAll(tfBuscar, imageBuscar);
         panelBusqueda.getChildren().addAll(barraBusqueda, btnDrawer);
@@ -674,4 +676,103 @@ public class MostrarClientes extends Stage{
         tfTelefono.setText("");
     }
     
+    public void crearDrawer(){
+        drawer = new JFXDrawer();
+        drawer.setPrefHeight(500);
+        drawer.setPrefWidth(279);
+        drawer.setEffect(new DropShadow());
+        
+        AnchorPane panelDrawer = new AnchorPane();
+        panelDrawer.setPrefHeight(500);
+        panelDrawer.setPrefWidth(279);
+        panelDrawer.setLayoutX(147);
+        panelDrawer.setLayoutY(279);
+        panelDrawer.getStyleClass().add("background");
+        
+        AnchorPane panelSuperior = new AnchorPane();
+        panelSuperior.setPrefHeight(147);
+        panelSuperior.setPrefWidth(279);
+        panelSuperior.setPrefHeight(147);
+        panelSuperior.setPrefWidth(279);
+        panelSuperior.getStyleClass().add("panelSuperior");
+        
+        Label nombreAdmin = new Label();
+        nombreAdmin.setText(nombreAdministrador);
+        nombreAdmin.setPrefWidth(135);
+        nombreAdmin.setLayoutX(120);
+        nombreAdmin.setLayoutY(33);
+        nombreAdmin.getStyleClass().add("administrarCliente");
+        
+        ImageView imagenAdmin = new ImageView();
+        imagenAdmin.setImage(new Image("/resources/Avatar_Blanco.png"));
+        imagenAdmin.setFitHeight(96);
+        imagenAdmin.setFitWidth(96);
+        imagenAdmin.setLayoutX(12);
+        imagenAdmin.setLayoutY(13);
+        
+        Label ruta = new Label();
+        ruta.setPrefWidth(190);
+        ruta.setLayoutX(45);
+        ruta.setLayoutY(127);
+        ruta.setStyle("-fx-font-size:10pt; -fx-font-family: Futura; -fx-text-fill:#ffffff;");
+        
+        JFXButton btnBuscarCliente = new JFXButton();
+        btnBuscarCliente.setGraphic(new ImageView(new Image("/resources/Avatar_Drawer.png")));
+        btnBuscarCliente.setText("Buscar Cliente");
+        btnBuscarCliente.setPrefHeight(30);
+        btnBuscarCliente.setPrefWidth(150);
+        btnBuscarCliente.setLayoutX(11);
+        btnBuscarCliente.setLayoutY(167);
+        btnBuscarCliente.getStyleClass().add("botonesDrawer");
+        btnBuscarCliente.setOnAction(evt -> {
+            drawer.setVisible(false);
+        });
+        
+        JFXButton btnBuscarAutomovil = new JFXButton();
+        btnBuscarAutomovil.setGraphic(new ImageView(new Image("/resources/Coche_Drawer.png")));
+        btnBuscarAutomovil.setText("Buscar Automovil");
+        btnBuscarAutomovil.setPrefHeight(25);
+        btnBuscarAutomovil.setPrefWidth(177);
+        btnBuscarAutomovil.setLayoutX(11);
+        btnBuscarAutomovil.setLayoutY(211);
+        btnBuscarAutomovil.getStyleClass().add("botonesDrawer");
+
+        JFXButton btnSalir = new JFXButton();
+        btnSalir.setGraphic(new ImageView(new Image("/resources/Salir.png")));
+        btnSalir.setText("Cerrar Sesion");
+        btnSalir.setPrefHeight(30);
+        btnSalir.setPrefWidth(156);
+        btnSalir.setLayoutX(11);
+        btnSalir.setLayoutY(456);
+        btnSalir.getStyleClass().add("botonesDrawer");
+        btnSalir.setOnAction(evt -> {
+            IniciarSesion inicio = new IniciarSesion();
+            inicio.show();
+            this.hide();
+        });
+        
+        panelSuperior.getChildren().addAll(nombreAdmin, imagenAdmin, ruta);
+        panelDrawer.getChildren().addAll(panelSuperior, btnBuscarCliente, btnBuscarAutomovil, btnSalir);
+        drawer.getChildren().add(panelDrawer);
+    }
+    
+    private void setAnimation(){
+        drawer.prefHeightProperty().bind(root.heightProperty());
+        drawer.setPrefWidth(279);
+        drawer.setTranslateX(-300);
+        TranslateTransition menuTranslation = new TranslateTransition(Duration.millis(500), drawer);
+
+        menuTranslation.setFromX(-300);
+        menuTranslation.setToX(0);
+        
+        btnDrawer.setOnMouseClicked(evt -> {
+            menuTranslation.setRate(1);
+            menuTranslation.play();
+        });
+        
+        drawer.setOnMouseExited(evt -> {
+            menuTranslation.setRate(-1);
+            menuTranslation.play();
+        });
+    }
 }
