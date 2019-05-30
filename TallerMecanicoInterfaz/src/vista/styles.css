@@ -123,8 +123,28 @@ and open the template in the editor.
     -fx-font-family: Futura;
 }
 
-.jfx-date-picker .jfx-button{ 
-    -fx-background-color: #003c8f; 
+.jfx-date-picker > .arrow-button {
+    -jfx-focus-color: #003c8f;
+}
+
+.jfx-date-picker .input-focused-line {
+    -fx-background-color: #003c8f;
+}
+
+.jfx-date-picker > .arrow-button > .jfx-svg-glyph{
+    -fx-background-color: #003c8f;
+}
+
+.jfx-time-picker {
+     -jfx-default-color: #003c8f;
+}
+
+.jfx-time-picker .input-focused-line {
+    -fx-background-color: #003c8f;
+}
+
+.jfx-time-picker > .arrow-button > .jfx-svg-glyph{
+    -fx-background-color: #003c8f;
 }
 
 .jfx-hamburger StackPane {

@@ -376,7 +376,7 @@ public class MostrarReparaciones2 extends Stage{
         dpHora.setLayoutY(228);
         dpHora.setPrefHeight(30);
         dpHora.setPrefWidth(110);
-        dpHora.getStyleClass().add("jfx-date-picker");
+        dpHora.getStyleClass().add("jfx-time-picker");
         
         dpFecha = new JFXDatePicker();
         dpFecha.setPromptText("Fecha");
