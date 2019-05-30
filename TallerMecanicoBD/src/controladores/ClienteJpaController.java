@@ -215,6 +215,17 @@ public class ClienteJpaController implements Serializable {
             em.close();
         }
     }
+    
+    public List<Cliente> findAllClientes(){
+        EntityManager em = getEntityManager();
+        try {
+            List<Cliente> clientes = new ArrayList<Cliente>();
+            clientes = em.createNamedQuery("Cliente.findAll").getResultList();
+            return clientes;
+        } finally {
+            em.close();
+        }
+    }
 
     public List<Cliente> findClientes(String nombre){
         EntityManager em = getEntityManager();

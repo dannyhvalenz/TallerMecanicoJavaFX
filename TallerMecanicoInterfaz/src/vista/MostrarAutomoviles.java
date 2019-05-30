@@ -162,11 +162,7 @@ public class MostrarAutomoviles extends Stage{
             errores += "* La color no debe estar vacio \n";
         }
         
-        if (errores.length() == 0){
-            panelEditar.setVisible(false);
-            this.setWidth(333);
-            this.centerOnScreen();
-        } else {
+        if (errores.length() != 0){
             mostrarAlerta(errores, "Campos Vacios");
             valido = false;
         }
@@ -290,7 +286,6 @@ public class MostrarAutomoviles extends Stage{
         });
         tfModelo.getStyleClass().add("TextField");
         
-        // Direccion
         tfLinea = new JFXTextField();
         tfLinea.setPromptText("Linea");
         tfLinea.setLabelFloat(true);
@@ -309,7 +304,6 @@ public class MostrarAutomoviles extends Stage{
         tfColor.setPrefWidth(250);
         tfColor.getStyleClass().add("TextField");
         
-        // Boton Aceptar
         JFXButton btnAceptar = new JFXButton();
         ImageView imageAceptar = new ImageView();
         imageAceptar.setImage(new Image("/resources/Aceptar.png"));
@@ -336,16 +330,22 @@ public class MostrarAutomoviles extends Stage{
                         automovil = new Automovil (matricula, marca, modelo, linea , color, cliente);
                         controlador.crear(automovil);
                         cargarAutomoviles("");
+                        panelEditar.setVisible(false);
+                        this.setWidth(333);
+                        this.centerOnScreen();
                     } catch (Exception ex){
-                        System.out.println(ex);
+                        mostrarAlerta("Error al agregar automovil", "Error de conexion");
                     }
                 } else {
                     try {
                         automovil = new Automovil (matricula, marca, modelo, linea , color, cliente);
                         controlador.actualizar(automovil);
                         cargarAutomoviles("");
+                        panelEditar.setVisible(false);
+                        this.setWidth(333);
+                        this.centerOnScreen();
                     } catch (Exception ex) {
-                        System.out.println(ex);
+                        mostrarAlerta("Error al actualizar automovil", "Error de conexion");
                     }
                 }
             limpiarCamposEditar();
@@ -707,7 +707,7 @@ public class MostrarAutomoviles extends Stage{
         ruta.setPrefWidth(190);
         ruta.setLayoutX(45);
         ruta.setLayoutY(127);
-        ruta.setStyle("-fx-font-size:10pt; -fx-font-family: Futura; -fx-text-fill:#ffffff;");
+        ruta.setStyle("-fx-font-size:9pt; -fx-font-family: 'Fira Code', monospace; -fx-text-fill:#ffffff;");
         
         JFXButton btnBuscarCliente = new JFXButton();
         btnBuscarCliente.setGraphic(new ImageView(new Image("/resources/Avatar_Drawer.png")));

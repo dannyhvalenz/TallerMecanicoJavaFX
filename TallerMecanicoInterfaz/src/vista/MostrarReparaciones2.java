@@ -70,7 +70,7 @@ public class MostrarReparaciones2 extends Stage{
     private JFXHamburger btnDrawer;
 
     private JFXComboBox<String> cbTipo;    
-    private JFXTextField tfTipo, tfKilometraje, tfCosto;
+    private JFXTextField tfKilometraje, tfCosto;
     private JFXTextArea tfDesFalla, tfDesMantenimiento;
     private JFXDatePicker dpFecha;
     private JFXTimePicker dpHora;
@@ -411,7 +411,7 @@ public class MostrarReparaciones2 extends Stage{
                 
                 hora = sd;
                 costo = Integer.parseInt(tfCosto.getText());
-                tipo = tfTipo.getText();
+                tipo = cbTipo.getSelectionModel().getSelectedItem();
                 kilometraje = tfKilometraje.getText();
                 descripcionFalla = tfDesFalla.getText();
                 descripcionMantenimiento = tfDesMantenimiento.getText();
@@ -427,8 +427,9 @@ public class MostrarReparaciones2 extends Stage{
                     }
                 } else {
                     try {
+                        idReparacion = reparacion.getId();
                         reparacion = new Reparacion (fecha, hora, costo, idReparacion, tipo, kilometraje, descripcionFalla, descripcionMantenimiento, automovil);
-                        controlador.edit(reparacion);
+                        controlador.actualizar(reparacion);
                         cargarReparaciones("");
                     } catch (Exception ex) {
                         System.out.println(ex);
@@ -519,7 +520,7 @@ public class MostrarReparaciones2 extends Stage{
             panelEditar.setVisible(true);
             panelConsultar.setVisible(false);
             
-            tfTipo.setText(administrarReparacionConsultar.getText());
+            cbTipo.getSelectionModel().select(administrarReparacionConsultar.getText());
             tfKilometraje.setText(reparacion.getKilometraje());
             tfCosto.setText(Integer.toString(reparacion.getCosto()));
             tfDesFalla.setText(reparacion.getDescripcionFalla());
@@ -641,6 +642,7 @@ public class MostrarReparaciones2 extends Stage{
             panelEditar.setVisible(true);
             panelConsultar.setVisible(false);
             administrarReparacion.setText("Agregar \n Reparacion");
+            cbTipo.getSelectionModel().selectFirst();
         });
     }
 
@@ -663,6 +665,7 @@ public class MostrarReparaciones2 extends Stage{
                 reparacion = r;
                 
                 reparacion.setId(r.getId());
+                System.out.println("Id de la reparacion: " + reparacion.getId());
                 reparacion.setTipo(r.getTipo());
                 reparacion.setKilometraje(r.getKilometraje());
                 reparacion.setDescripcionFalla(r.getDescripcionFalla());
@@ -730,11 +733,11 @@ public class MostrarReparaciones2 extends Stage{
         
         Label ruta = new Label();
         ruta.setText(cliente.getNombre() + " --> " + automovil.getId());
-        ruta.setPrefWidth(190);
-        ruta.setLayoutX(45);
+        ruta.setPrefWidth(250);
+        ruta.setLayoutX(10);
         ruta.setLayoutY(127);
-        Font fuenteRuta = new Font("Futura", 8);
-        ruta.setStyle("-fx-font-size:10pt; -fx-font-family: Futura; -fx-text-fill:#ffffff;");
+        ruta.setStyle("-fx-font-size:9pt; -fx-font-family: 'Fira Code', monospace; -fx-text-fill:#ffffff;");
+        //ruta.getStyleClass().add("ruta");
         
         JFXButton btnBuscarCliente = new JFXButton();
         btnBuscarCliente.setGraphic(new ImageView(new Image("/resources/Avatar_Drawer.png")));
@@ -871,7 +874,6 @@ public class MostrarReparaciones2 extends Stage{
     }
 
     private void limpiarCamposEditar() {
-        tfTipo.setText("");
         tfKilometraje.setText("");
         tfCosto.setText("");
         tfDesFalla.setText("");

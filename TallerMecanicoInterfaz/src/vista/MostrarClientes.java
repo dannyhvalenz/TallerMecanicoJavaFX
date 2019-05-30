@@ -89,7 +89,7 @@ public class MostrarClientes extends Stage{
         ClienteJpaController controlador = new ClienteJpaController();
         
         if(nombreCliente.equals("")){
-            clientes = controlador.findClienteEntities();
+            clientes = controlador.findAllClientes();
             int i = 0;
             for (Cliente c : clientes) {
                     try {
@@ -714,7 +714,7 @@ public class MostrarClientes extends Stage{
         ruta.setPrefWidth(190);
         ruta.setLayoutX(45);
         ruta.setLayoutY(127);
-        ruta.setStyle("-fx-font-size:10pt; -fx-font-family: Futura; -fx-text-fill:#ffffff;");
+        ruta.setStyle("-fx-font-size:9pt; -fx-font-family: 'Fira Code', monospace; -fx-text-fill:#ffffff;");
         
         JFXButton btnBuscarCliente = new JFXButton();
         btnBuscarCliente.setGraphic(new ImageView(new Image("/resources/Avatar_Drawer.png")));

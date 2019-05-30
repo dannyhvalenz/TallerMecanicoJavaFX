@@ -36,7 +36,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "Reparacion.findByFecha", query = "SELECT r FROM Reparacion r WHERE r.fecha = :fecha")
     , @NamedQuery(name = "Reparacion.findByHora", query = "SELECT r FROM Reparacion r WHERE r.hora = :hora")
     , @NamedQuery(name = "Reparacion.findByDescripcionFalla", query = "SELECT r FROM Reparacion r WHERE r.descripcionFalla = :descripcionFalla")
-    , @NamedQuery(name = "Reparacion.findByDescripcionMantenimiento", query = "SELECT r FROM Reparacion r WHERE r.descripcionMantenimiento = :descripcionMantenimiento")})
+    , @NamedQuery(name = "Reparacion.findByDescripcionMantenimiento", query = "SELECT r FROM Reparacion r WHERE r.descripcionMantenimiento = :descripcionMantenimiento")
+    , @NamedQuery(name = "Reparacion.update" , query = "UPDATE Reparacion SET fecha = :fecha, hora = :hora , costo = :costo, tipo = :tipo, kilometraje = :kilometraje, descripcionFalla = :descripcionFalla, descripcionMantenimiento = :descripcionMantenimiento WHERE id = :id")})
 public class Reparacion implements Serializable {
 
     @Basic(optional = false)

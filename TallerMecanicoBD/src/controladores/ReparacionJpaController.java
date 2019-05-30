@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.NamedQuery;
 import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -71,6 +72,28 @@ public class ReparacionJpaController implements Serializable {
             }
         }
     }
+    
+    public void actualizar(Reparacion r) throws Exception{
+        EntityManager em = null;
+        try {
+            em = getEntityManager();
+            em.getTransaction().begin();
+            em.createNamedQuery("Reparacion.update")
+                    .setParameter("fecha", r.getFecha())
+                    .setParameter("hora", r.getHora())
+                    .setParameter("costo", r.getCosto())
+                    .setParameter("tipo", r.getTipo())
+                    .setParameter("kilometraje", r.getKilometraje())
+                    .setParameter("descripcionFalla", r.getDescripcionFalla())
+                    .setParameter("descripcionMantenimiento", r.getDescripcionMantenimiento())
+                    .setParameter("id", r.getId())
+                    .executeUpdate();
+            
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            System.out.println("Error al actualizar la reparacion");
+        }
+    }
 
     public void edit(Reparacion reparacion) throws NonexistentEntityException, Exception {
         EntityManager em = null;
@@ -122,11 +145,11 @@ public class ReparacionJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The reparacion with id " + id + " no longer exists.", enfe);
             }
-            Automovil idAutomovil = reparacion.getIdAutomovil();
-            if (idAutomovil != null) {
-                idAutomovil.getReparacionList().remove(reparacion);
-                idAutomovil = em.merge(idAutomovil);
-            }
+//            Automovil idAutomovil = reparacion.getIdAutomovil();
+//            if (idAutomovil != null) {
+//                idAutomovil.getReparacionList().remove(reparacion);
+//                idAutomovil = em.merge(idAutomovil);
+//            }
             em.remove(reparacion);
             em.getTransaction().commit();
         } finally {

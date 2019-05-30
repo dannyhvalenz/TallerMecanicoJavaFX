@@ -7,6 +7,7 @@ and open the template in the editor.
     Created on : Apr 16, 2019, 5:22:33 PM
     Author     : dany
 */
+@import url(https://cdn.jsdelivr.net/gh/tonsky/FiraCode@1.206/distr/fira_code.css);
 
 .background {
     -fx-background-color: white;
@@ -41,9 +42,9 @@ and open the template in the editor.
 }
 
 .ruta {
+    -fx-font-family: 'Fira Code', monospace;
     -fx-text-fill:#ffffff;
-    -fx-font-size: 8pt;
-    -fx-font-family: Futura;
+    -fx-font-size:10pt;
 }
 
 .panelSuperior {
