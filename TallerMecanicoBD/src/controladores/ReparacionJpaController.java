@@ -145,11 +145,11 @@ public class ReparacionJpaController implements Serializable {
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The reparacion with id " + id + " no longer exists.", enfe);
             }
-//            Automovil idAutomovil = reparacion.getIdAutomovil();
-//            if (idAutomovil != null) {
-//                idAutomovil.getReparacionList().remove(reparacion);
-//                idAutomovil = em.merge(idAutomovil);
-//            }
+            Automovil idAutomovil = reparacion.getIdAutomovil();
+            if (idAutomovil != null) {
+                idAutomovil.getReparacionList().remove(reparacion);
+                idAutomovil = em.merge(idAutomovil);
+            }
             em.remove(reparacion);
             em.getTransaction().commit();
         } finally {
@@ -224,6 +224,21 @@ public class ReparacionJpaController implements Serializable {
             List<Reparacion> reparaciones = new ArrayList<Reparacion>();
             reparaciones = em.createNamedQuery("Reparacion.findAll").setParameter("idAutomovil", idAutomovil).getResultList();
             return reparaciones;
+        } finally {
+            em.close();
+        }
+    }
+    
+    public int getLastId(){
+        EntityManager em = getEntityManager();
+        try {
+            int id = 0;
+            List<Reparacion> reparaciones = new ArrayList<Reparacion>();
+            reparaciones = em.createNamedQuery("Reparacion.findAllOrderById").getResultList();
+            for (Reparacion r: reparaciones){
+                id = r.getId();
+            }
+            return id;
         } finally {
             em.close();
         }

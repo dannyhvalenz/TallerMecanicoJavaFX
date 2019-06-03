@@ -134,24 +134,33 @@ public class AutomovilJpaController implements Serializable {
         }
     }
 
-    public void destroy(String id) throws NonexistentEntityException {
+    public void destroy(String matricula) throws NonexistentEntityException {
         EntityManager em = null;
         try {
+            System.out.println(matricula + " a encontrar");
             em = getEntityManager();
             em.getTransaction().begin();
             Automovil automovil;
             try {
-                automovil = em.getReference(Automovil.class, id);
+                automovil = findAutomovil(matricula);
+                //automovil = em.getReference(Automovil.class, matricula);
                 automovil.getId();
+                System.out.println("Destroy id auto: " + automovil.getId());
             } catch (EntityNotFoundException enfe) {
-                throw new NonexistentEntityException("The automovil with id " + id + " no longer exists.", enfe);
+                throw new NonexistentEntityException("The automovil with id " + matricula + " no longer exists.", enfe);
             }
             Cliente idCliente = automovil.getIdCliente();
             if (idCliente != null) {
+                System.out.println("Destroy id auto 1: " + automovil.getId());
                 idCliente.getAutomovilList().remove(automovil);
+                System.out.println("Destroy id auto 2: " + automovil.getId());
                 idCliente = em.merge(idCliente);
+                System.out.println("Destroy id auto 3: " + automovil.getId());
             }
-            em.remove(automovil);
+            System.out.println("Destroy id auto 4: " + automovil.getId());
+            Automovil a = em.merge(automovil);
+            em.remove(a);
+            System.out.println("Destroy id auto 5: " + automovil.getId());
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -183,11 +192,14 @@ public class AutomovilJpaController implements Serializable {
             em.close();
         }
     }
-
+    
     public Automovil findAutomovil(String matricula) {
         EntityManager em = getEntityManager();
         try {
-            return em.find(Automovil.class, matricula);
+            System.out.println(matricula + " a encontrar");
+            return em.createNamedQuery("Automovil.findByMatricula", Automovil.class)
+              .setParameter("matricula", matricula).getSingleResult();
+            //return em.find(Automovil.class, matricula);
         } finally {
             em.close();
         }

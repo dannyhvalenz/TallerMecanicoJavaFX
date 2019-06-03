@@ -231,7 +231,7 @@ public class MostrarAutomoviles extends Stage{
         btnVerReparaciones.setOnAction(evt -> {
             System.out.println(cliente.getId());
             System.out.println("Matricula " + automovil.getId());
-            MostrarReparaciones2 reparaciones = new MostrarReparaciones2(nombreAdministrador, cliente, automovil);
+            MostrarReparaciones reparaciones = new MostrarReparaciones(nombreAdministrador, cliente, automovil);
             reparaciones.show();
             this.hide();
         });
@@ -625,15 +625,16 @@ public class MostrarAutomoviles extends Stage{
         JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
         JFXButton btnSi = new JFXButton("Si");
         btnSi.setOnAction((ActionEvent event) -> {
-            System.out.println("Automovil eliminado");
             dialog.close();
             AutomovilJpaController controlador = new AutomovilJpaController();
             try {
-                controlador.destroy(matricula);
+                System.out.println(automovil.getId() + " a encontrar");
+                controlador.destroy(automovil.getId());
                 cargarAutomoviles("");
                 panelConsultar.setVisible(false);
                 this.setWidth(333);
                 this.centerOnScreen();
+                System.out.println("Automovil eliminado");
             } catch (Exception ex) {
                 mostrarAlerta("Error de conexión con la base de datos", "Error de conexión");
                 System.out.println(ex);

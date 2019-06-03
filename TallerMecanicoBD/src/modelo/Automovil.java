@@ -60,7 +60,7 @@ public class Automovil implements Serializable {
     @JoinColumn(name = "idCliente", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Cliente idCliente;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idAutomovil")
+    @OneToMany(targetEntity=Reparacion.class, cascade = CascadeType.ALL, mappedBy = "idAutomovil", orphanRemoval = true)
     private List<Reparacion> reparacionList;
 
     public Automovil() {

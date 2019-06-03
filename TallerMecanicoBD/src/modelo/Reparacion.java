@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Reparacion.findAll", query = "SELECT r FROM Reparacion r WHERE r.idAutomovil = :idAutomovil")
+    , @NamedQuery(name = "Reparacion.findAllOrderById", query = "SELECT r FROM Reparacion r ORDER BY r.id")
     , @NamedQuery(name = "Reparacion.findByTipoLike", query = "SELECT r FROM Reparacion r WHERE r.idAutomovil = :idAutomovil AND r.tipo LIKE CONCAT(:tipo,'%')")
     , @NamedQuery(name = "Reparacion.findById", query = "SELECT r FROM Reparacion r WHERE r.id = :id")
     , @NamedQuery(name = "Reparacion.findByTipo", query = "SELECT r FROM Reparacion r WHERE r.tipo = :tipo")
@@ -82,7 +83,9 @@ public class Reparacion implements Serializable {
         this.id = id;
     }
 
-    public Reparacion(Date fecha, Date hora, int costo, Integer id, String tipo, 
+    
+    
+    public Reparacion(Integer id, Date fecha, Date hora, int costo, String tipo, 
             String kilometraje, String descripcionFalla, String descripcionMantenimiento, 
             Automovil idAutomovil) {
         this.fecha = fecha;

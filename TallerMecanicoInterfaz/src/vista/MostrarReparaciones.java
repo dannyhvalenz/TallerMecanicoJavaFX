@@ -27,9 +27,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -39,10 +47,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import modelo.Automovil;
 import modelo.Cliente;
@@ -56,9 +67,10 @@ public class MostrarReparaciones extends Stage{
     private JFXListView<Label> repList;
     private JFXTextField tfBuscar;
     private List<Reparacion> reparaciones;
+    private JFXHamburger btnDrawer;
 
     private JFXComboBox<String> cbTipo;    
-    private JFXTextField tfTipo, tfKilometraje, tfCosto;
+    private JFXTextField tfKilometraje, tfCosto;
     private JFXTextArea tfDesFalla, tfDesMantenimiento;
     private JFXDatePicker dpFecha;
     private JFXTimePicker dpHora;
@@ -82,7 +94,7 @@ public class MostrarReparaciones extends Stage{
     private Cliente cliente;
     private Automovil automovil;
     private Reparacion reparacion;
-    
+
     public MostrarReparaciones(String nombreAdministrador, Cliente cliente, Automovil automovil){
         this.nombreAdministrador = nombreAdministrador;
         System.out.println(this.nombreAdministrador);
@@ -113,9 +125,9 @@ public class MostrarReparaciones extends Stage{
         crearPanelEditarReparacion();
         crearBotonAgregarReparacion();
         crearDrawer();
+        setAnimation();
         
         root.getChildren().addAll(repList, panelBusqueda, btnAgregar, panelEditar, panelConsultar,drawer);
-        //root.getChildren().ad
     }
     
     private void cargarReparaciones(String tipoRepBuscar) {
@@ -126,8 +138,9 @@ public class MostrarReparaciones extends Stage{
             reparaciones = controlador.getReparacionesAutomovil(automovil);
             int i = 0;
             for (Reparacion r : reparaciones) {
+                    String fechaObtenida  = obtenerFecha(r.getFecha());
                     try {
-                        Label lbl = new Label(r.getTipo());
+                        Label lbl = new Label(r.getTipo() + " - " + fechaObtenida);
                         lbl.setGraphic(new ImageView(new Image(
                                 getClass().getResourceAsStream("/resources/Rep_Negra.png"))));
                         lbl.getStyleClass().add("label");
@@ -142,8 +155,9 @@ public class MostrarReparaciones extends Stage{
             reparaciones = controlador.findReparaciones(tipoRepBuscar, automovil);
             int i = 0;
             for (Reparacion r : reparaciones) {
+                String fechaObtenida  = obtenerFecha(r.getFecha());
                     try {
-                        Label lbl = new Label(r.getTipo());
+                        Label lbl = new Label(r.getTipo() + " - " + fechaObtenida);
                         lbl.setGraphic(new ImageView(new Image(
                                 getClass().getResourceAsStream("/resources/Rep_Negra.png"))));
                         lbl.getStyleClass().add("label");
@@ -160,7 +174,7 @@ public class MostrarReparaciones extends Stage{
     
     private boolean validarDatos() {
         boolean valido = true;
-        String validarTipo = tfTipo.getText();
+        String validarTipo = cbTipo.getSelectionModel().getSelectedItem().toString();
         String validarKilometraje = tfKilometraje.getText();
         String validarCosto =  tfCosto.getText();
         String validarFecha = dpFecha.getValue().toString();
@@ -364,7 +378,7 @@ public class MostrarReparaciones extends Stage{
         dpHora.setLayoutY(228);
         dpHora.setPrefHeight(30);
         dpHora.setPrefWidth(110);
-        dpHora.getStyleClass().add("jfx-date-picker");
+        dpHora.getStyleClass().add("jfx-time-picker");
         
         dpFecha = new JFXDatePicker();
         dpFecha.setPromptText("Fecha");
@@ -399,15 +413,15 @@ public class MostrarReparaciones extends Stage{
                 
                 hora = sd;
                 costo = Integer.parseInt(tfCosto.getText());
-                tipo = tfTipo.getText();
+                tipo = cbTipo.getSelectionModel().getSelectedItem();
                 kilometraje = tfKilometraje.getText();
                 descripcionFalla = tfDesFalla.getText();
                 descripcionMantenimiento = tfDesMantenimiento.getText();
                 
                 if (editarReparacion == false){
                     try {
-                        idReparacion = controlador.getReparacionCount() + 1;
-                        reparacion = new Reparacion (fecha, hora, costo, idReparacion, tipo, kilometraje, descripcionFalla, descripcionMantenimiento, automovil);
+                        idReparacion = controlador.getLastId() + 1;
+                        reparacion = new Reparacion (idReparacion, fecha, hora, costo, tipo, kilometraje, descripcionFalla, descripcionMantenimiento, automovil);
                         controlador.crear(reparacion);
                         cargarReparaciones("");
                     } catch (Exception ex){
@@ -415,8 +429,8 @@ public class MostrarReparaciones extends Stage{
                     }
                 } else {
                     try {
-                        reparacion = new Reparacion (fecha, hora, costo, idReparacion, tipo, kilometraje, descripcionFalla, descripcionMantenimiento, automovil);
-                        controlador.edit(reparacion);
+                        reparacion = new Reparacion (reparacion.getId(), fecha, hora, costo, tipo, kilometraje, descripcionFalla, descripcionMantenimiento, automovil);
+                        controlador.actualizar(reparacion);
                         cargarReparaciones("");
                     } catch (Exception ex) {
                         System.out.println(ex);
@@ -507,7 +521,7 @@ public class MostrarReparaciones extends Stage{
             panelEditar.setVisible(true);
             panelConsultar.setVisible(false);
             
-            tfTipo.setText(administrarReparacionConsultar.getText());
+            cbTipo.getSelectionModel().select(administrarReparacionConsultar.getText());
             tfKilometraje.setText(reparacion.getKilometraje());
             tfCosto.setText(Integer.toString(reparacion.getCosto()));
             tfDesFalla.setText(reparacion.getDescripcionFalla());
@@ -565,7 +579,6 @@ public class MostrarReparaciones extends Stage{
         imageReparacion.setFitWidth(96);
         
         panelReparacion.getChildren().addAll(administrarReparacion, imageReparacion);
-        
     }
 
     private void crearBarraBusqueda() {
@@ -600,14 +613,11 @@ public class MostrarReparaciones extends Stage{
         imageBuscar.setFitHeight(22);
         imageBuscar.setFitWidth(22);
         
-        JFXHamburger btnDrawer = new JFXHamburger();
+        btnDrawer = new JFXHamburger();
         btnDrawer.getStyleClass().add("jfx-hamburger");
         btnDrawer.setLayoutX(15);
         btnDrawer.setLayoutY(35);
         btnDrawer.setPrefSize(26, 17);
-        btnDrawer.setOnMouseClicked(evt -> {
-            drawer.setVisible(true);
-        });
         
         barraBusqueda.getChildren().addAll(tfBuscar, imageBuscar);
         panelBusqueda.getChildren().addAll(barraBusqueda, btnDrawer);
@@ -633,6 +643,7 @@ public class MostrarReparaciones extends Stage{
             panelEditar.setVisible(true);
             panelConsultar.setVisible(false);
             administrarReparacion.setText("Agregar \n Reparacion");
+            cbTipo.getSelectionModel().selectFirst();
         });
     }
 
@@ -655,6 +666,7 @@ public class MostrarReparaciones extends Stage{
                 reparacion = r;
                 
                 reparacion.setId(r.getId());
+                System.out.println("Id de la reparacion: " + reparacion.getId());
                 reparacion.setTipo(r.getTipo());
                 reparacion.setKilometraje(r.getKilometraje());
                 reparacion.setDescripcionFalla(r.getDescripcionFalla());
@@ -691,10 +703,6 @@ public class MostrarReparaciones extends Stage{
         drawer.setPrefHeight(500);
         drawer.setPrefWidth(279);
         drawer.setEffect(new DropShadow());
-        drawer.setVisible(false);
-        drawer.setOnMouseExited(evt -> {
-            drawer.setVisible(false);
-        });
         
         AnchorPane panelDrawer = new AnchorPane();
         panelDrawer.setPrefHeight(500);
@@ -726,11 +734,11 @@ public class MostrarReparaciones extends Stage{
         
         Label ruta = new Label();
         ruta.setText(cliente.getNombre() + " --> " + automovil.getId());
-        ruta.setPrefWidth(190);
-        ruta.setLayoutX(45);
+        ruta.setPrefWidth(250);
+        ruta.setLayoutX(10);
         ruta.setLayoutY(127);
-        Font fuenteRuta = new Font("Futura", 8);
-        ruta.setStyle("-fx-font-size:10pt; -fx-font-family: Futura; -fx-text-fill:#ffffff;");
+        ruta.setStyle("-fx-font-size:9pt; -fx-font-family: 'Fira Code', monospace; -fx-text-fill:#ffffff;");
+        //ruta.getStyleClass().add("ruta");
         
         JFXButton btnBuscarCliente = new JFXButton();
         btnBuscarCliente.setGraphic(new ImageView(new Image("/resources/Avatar_Drawer.png")));
@@ -831,15 +839,17 @@ public class MostrarReparaciones extends Stage{
         JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
         JFXButton btnSi = new JFXButton("Si");
         btnSi.setOnAction((ActionEvent event) -> {
-            System.out.println("Reparacion eliminada");
+            
             dialog.close();
             ReparacionJpaController controlador = new ReparacionJpaController();
             try {
-                controlador.destroy(idReparacion);
+                System.out.println("idReparacion " + reparacion.getId());
+                controlador.destroy(reparacion.getId());
                 cargarReparaciones("");
                 panelConsultar.setVisible(false);
                 this.setWidth(333);
                 this.centerOnScreen();
+                System.out.println("Reparacion eliminada");
             } catch (Exception ex) {
                 mostrarAlerta("Error de conexión con la base de datos", "Error de conexión");
                 System.out.println(ex);
@@ -867,7 +877,6 @@ public class MostrarReparaciones extends Stage{
     }
 
     private void limpiarCamposEditar() {
-        tfTipo.setText("");
         tfKilometraje.setText("");
         tfCosto.setText("");
         tfDesFalla.setText("");
@@ -890,5 +899,42 @@ public class MostrarReparaciones extends Stage{
         }
         return nombre_nuevo;
     }
+   
+    private void setAnimation(){
+        drawer.prefHeightProperty().bind(root.heightProperty());
+        drawer.setPrefWidth(279);
+        drawer.setTranslateX(-300);
+        TranslateTransition menuTranslation = new TranslateTransition(Duration.millis(500), drawer);
+
+        menuTranslation.setFromX(-300);
+        menuTranslation.setToX(0);
+        
+        btnDrawer.setOnMouseClicked(evt -> {
+            menuTranslation.setRate(1);
+            menuTranslation.play();
+        });
+        
+        drawer.setOnMouseExited(evt -> {
+            menuTranslation.setRate(-1);
+            menuTranslation.play();
+        });
+    }
+
+    private String obtenerFecha(java.util.Date fecha) {
+        java.util.Date dat = fecha;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dat);
+        int month = cal.get(Calendar.MONTH);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        int year = cal.get(Calendar.YEAR);
+        
+        String[] meses = {"Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"}; 
+        
+        String fechaActualizada = day + " / " + meses[month] + " / " + year;
+                
+        return fechaActualizada;
+    }
     
+    
+        
 }
