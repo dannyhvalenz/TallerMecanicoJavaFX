@@ -143,24 +143,17 @@ public class AutomovilJpaController implements Serializable {
             Automovil automovil;
             try {
                 automovil = findAutomovil(matricula);
-                //automovil = em.getReference(Automovil.class, matricula);
                 automovil.getId();
-                System.out.println("Destroy id auto: " + automovil.getId());
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The automovil with id " + matricula + " no longer exists.", enfe);
             }
             Cliente idCliente = automovil.getIdCliente();
             if (idCliente != null) {
-                System.out.println("Destroy id auto 1: " + automovil.getId());
                 idCliente.getAutomovilList().remove(automovil);
-                System.out.println("Destroy id auto 2: " + automovil.getId());
                 idCliente = em.merge(idCliente);
-                System.out.println("Destroy id auto 3: " + automovil.getId());
             }
-            System.out.println("Destroy id auto 4: " + automovil.getId());
             Automovil a = em.merge(automovil);
             em.remove(a);
-            System.out.println("Destroy id auto 5: " + automovil.getId());
             em.getTransaction().commit();
         } finally {
             if (em != null) {

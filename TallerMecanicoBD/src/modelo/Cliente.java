@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Cliente.findAll", query = "SELECT c FROM Cliente c ORDER BY c.nombre")
+    , @NamedQuery(name = "Cliente.findAllOrderById", query = "SELECT c FROM Cliente c ORDER BY c.id")
     , @NamedQuery(name = "Cliente.findById", query = "SELECT c FROM Cliente c WHERE c.id = :id")
     , @NamedQuery(name = "Cliente.findByNombreLike", query = "SELECT c FROM Cliente c WHERE c.nombre LIKE CONCAT(:nombre,'%')")
     , @NamedQuery(name = "Cliente.findByNombre", query = "SELECT c FROM Cliente c WHERE c.nombre = :nombre")
@@ -53,7 +54,7 @@ public class Cliente implements Serializable {
     @Basic(optional = false)
     @Column(name = "correo")
     private String correo;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idCliente")
+    @OneToMany(targetEntity=Automovil.class, cascade = CascadeType.ALL, mappedBy = "idCliente", orphanRemoval = true)
     private List<Automovil> automovilList;
 
     public Cliente() {

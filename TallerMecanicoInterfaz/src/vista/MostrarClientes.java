@@ -314,7 +314,7 @@ public class MostrarClientes extends Stage{
                 
                 if (editarCliente == false){
                     try {
-                        idCliente = controlador.getClienteCount() + 1;
+                        idCliente = controlador.getLastId() + 1;
                         System.out.println(idCliente);
                         cliente = new Cliente (idCliente, nombre, telefono, direccion, correo);
                         controlador.crearCliente(cliente);
@@ -638,7 +638,7 @@ public class MostrarClientes extends Stage{
             dialog.close();
             ClienteJpaController controlador = new ClienteJpaController();
             try {
-                controlador.destroy(idCliente);
+                controlador.destroy(cliente.getId());
                 cargarClientes("");
                 panelConsultar.setVisible(false);
                 this.setWidth(333);
@@ -736,6 +736,7 @@ public class MostrarClientes extends Stage{
         btnBuscarAutomovil.setLayoutX(11);
         btnBuscarAutomovil.setLayoutY(211);
         btnBuscarAutomovil.getStyleClass().add("botonesDrawer");
+        btnBuscarAutomovil.setDisable(true);
 
         JFXButton btnSalir = new JFXButton();
         btnSalir.setGraphic(new ImageView(new Image("/resources/Salir.png")));

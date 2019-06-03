@@ -19,6 +19,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import modelo.Cliente;
+import modelo.Reparacion;
 
 /**
  *
@@ -174,16 +175,18 @@ public class ClienteJpaController implements Serializable {
             }
             List<String> illegalOrphanMessages = null;
             List<Automovil> automovilListOrphanCheck = cliente.getAutomovilList();
-            for (Automovil automovilListOrphanCheckAutomovil : automovilListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Cliente (" + cliente + ") cannot be destroyed since the Automovil " + automovilListOrphanCheckAutomovil + " in its automovilList field has a non-nullable idCliente field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
-            em.remove(cliente);
+//            for (Automovil automovilListOrphanCheckAutomovil : automovilListOrphanCheck) {
+//                if (illegalOrphanMessages == null) {
+//                    illegalOrphanMessages = new ArrayList<String>();
+//                }
+//                illegalOrphanMessages.add("This Cliente (" + cliente + ") cannot be destroyed since the Automovil " + automovilListOrphanCheckAutomovil + " in its automovilList field has a non-nullable idCliente field.");
+//            }
+//            if (illegalOrphanMessages != null) {
+//                throw new IllegalOrphanException(illegalOrphanMessages);
+//            }
+            
+            Cliente c = em.merge(cliente);
+            em.remove(c);
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -264,6 +267,21 @@ public class ClienteJpaController implements Serializable {
             cq.select(em.getCriteriaBuilder().count(rt));
             Query q = em.createQuery(cq);
             return ((Long) q.getSingleResult()).intValue();
+        } finally {
+            em.close();
+        }
+    }
+    
+    public int getLastId(){
+        EntityManager em = getEntityManager();
+        try {
+            int id = 0;
+            List<Cliente> clientes = new ArrayList<Cliente>();
+            clientes = em.createNamedQuery("Cliente.findAllOrderById").getResultList();
+            for (Cliente c: clientes){
+                id = c.getId();
+            }
+            return id;
         } finally {
             em.close();
         }
