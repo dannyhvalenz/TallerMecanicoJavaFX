@@ -538,7 +538,7 @@ public class MostrarAutomoviles extends Stage{
             panelConsultar.setVisible(false);
             administrarAutomovil.setText("Agregar \n Cliente");
             editarAutomovil = false;
-            tfMatricula.setDisable(true);
+            tfMatricula.setDisable(false);
         });
     }
 
