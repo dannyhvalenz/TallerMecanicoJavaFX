@@ -419,6 +419,7 @@ public class MostrarAutomoviles extends Stage{
             panelConsultar.setVisible(false);
             
             tfMatricula.setText(administrarAutomovilConsultar.getText());
+            tfMatricula.setDisable(true);
             tfMarca.setText(tfMarcaConsultar.getText());
             tfModelo.setText(tfModeloConsultar.getText());
             tfLinea.setText(tfLineaConsultar.getText());
@@ -537,6 +538,7 @@ public class MostrarAutomoviles extends Stage{
             panelConsultar.setVisible(false);
             administrarAutomovil.setText("Agregar \n Cliente");
             editarAutomovil = false;
+            tfMatricula.setDisable(true);
         });
     }
 
