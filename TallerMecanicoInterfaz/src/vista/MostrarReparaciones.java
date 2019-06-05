@@ -209,11 +209,7 @@ public class MostrarReparaciones extends Stage{
             errores += "* La hora no debe estar vacia \n";
         }
         
-        if (errores.length() == 0){
-            panelEditar.setVisible(false);
-            this.setWidth(333);
-            this.centerOnScreen();
-        } else {
+        if (errores.length() != 0){
             mostrarAlerta(errores, "Campos Vacios");
             valido = false;
         }
@@ -423,6 +419,7 @@ public class MostrarReparaciones extends Stage{
                         idReparacion = controlador.getLastId() + 1;
                         reparacion = new Reparacion (idReparacion, fecha, hora, costo, tipo, kilometraje, descripcionFalla, descripcionMantenimiento, automovil);
                         controlador.crear(reparacion);
+                        mostrarAlertaExito("Se ha registrado la reparacion en \n la base de datos", "Reparacion Registrada");
                         cargarReparaciones("");
                     } catch (Exception ex){
                         System.out.println(ex);
@@ -431,6 +428,7 @@ public class MostrarReparaciones extends Stage{
                     try {
                         reparacion = new Reparacion (reparacion.getId(), fecha, hora, costo, tipo, kilometraje, descripcionFalla, descripcionMantenimiento, automovil);
                         controlador.actualizar(reparacion);
+                        mostrarAlertaExito("Se ha actualizado la reparacion en \n la base de datos", "Reparacion Actualizada");
                         cargarReparaciones("");
                     } catch (Exception ex) {
                         System.out.println(ex);
@@ -644,6 +642,7 @@ public class MostrarReparaciones extends Stage{
             panelConsultar.setVisible(false);
             administrarReparacion.setText("Agregar \n Reparacion");
             cbTipo.getSelectionModel().selectFirst();
+            editarReparacion = false;
         });
     }
 
@@ -845,11 +844,8 @@ public class MostrarReparaciones extends Stage{
             try {
                 System.out.println("idReparacion " + reparacion.getId());
                 controlador.destroy(reparacion.getId());
+                mostrarAlertaExito("Se ha eliminado la reparacion de \n la base de datos", "Reparacion Eliminada");
                 cargarReparaciones("");
-                panelConsultar.setVisible(false);
-                this.setWidth(333);
-                this.centerOnScreen();
-                System.out.println("Reparacion eliminada");
             } catch (Exception ex) {
                 mostrarAlerta("Error de conexión con la base de datos", "Error de conexión");
                 System.out.println(ex);
@@ -882,24 +878,7 @@ public class MostrarReparaciones extends Stage{
         tfDesFalla.setText("");
         tfDesMantenimiento.setText("");
     }
-    
-    public String separarNombre(String nombreAdministrador){
-        String nombre_nuevo = "";
-        for (int i = 0; i < nombreAdministrador.length(); i++){
-            char c = nombreAdministrador.charAt(i);
-            if (i >= 1){
-                if(Character.isUpperCase(c)){               
-                    nombre_nuevo = nombre_nuevo + " " + c;
-                } else {
-                    nombre_nuevo = nombre_nuevo + c;
-                }
-            } else {
-                nombre_nuevo = nombre_nuevo + c;
-            }
-        }
-        return nombre_nuevo;
-    }
-   
+       
     private void setAnimation(){
         drawer.prefHeightProperty().bind(root.heightProperty());
         drawer.setPrefWidth(279);
@@ -935,6 +914,38 @@ public class MostrarReparaciones extends Stage{
         return fechaActualizada;
     }
     
-    
+    public void mostrarAlertaExito(String mensaje, String titulo){
+        JFXDialogLayout content = new JFXDialogLayout();
+        ImageView check = new ImageView();
+        check.setImage(new Image("/resources/Check.png"));
+        check.setFitHeight(30);
+        check.setFitWidth(30);
         
+        Label header = new Label();
+        header.setText("  " + titulo);
+        header.setGraphic(check);
+        content.setHeading(header);
+        content.getStyleClass().add("mensaje");
+        content.setBody(new Text(mensaje));
+        content.setPrefSize(300, 100);
+        StackPane stackPane = new StackPane();
+        stackPane.autosize();
+        JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
+        JFXButton button = new JFXButton("Okay");
+        button.setOnAction((ActionEvent event) -> {
+            dialog.close();
+            panelEditar.setVisible(false);
+            this.setWidth(333);
+            this.centerOnScreen();
+        });
+        button.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
+        button.setPrefHeight(32);
+        button.getStyleClass().add("btnAlerta");
+        content.setActions(button);
+        root.getChildren().add(stackPane);
+        AnchorPane.setTopAnchor(stackPane, (500 - content.getPrefHeight()) / 2);
+        AnchorPane.setLeftAnchor(stackPane, 345.00);
+        dialog.show();  
+    }
+    
 }

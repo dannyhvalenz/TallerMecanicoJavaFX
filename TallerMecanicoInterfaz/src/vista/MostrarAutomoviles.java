@@ -51,7 +51,7 @@ public class MostrarAutomoviles extends Stage{
     private JFXTextField tfMarcaConsultar, tfModeloConsultar, tfLineaConsultar, tfColorConsultar;
     
     private AnchorPane root, panelEditar, panelAutomovil, panelBusqueda, panelConsultar, panelAutomovilConsultar;
-    private JFXButton btnAgregar, btnEditar, btnEliminar;
+    private JFXButton btnAgregar, btnEditar, btnEliminar, btnBuscarAutomovil;
     private Label administrarAutomovil, administrarAutomovilConsultar;
     
     private boolean editarAutomovil = false, drawerAbierto = false;
@@ -329,10 +329,8 @@ public class MostrarAutomoviles extends Stage{
                     try {
                         automovil = new Automovil (matricula, marca, modelo, linea , color, cliente);
                         controlador.crear(automovil);
+                        mostrarAlertaExito("Se ha registrado el automovil en \n la base de datos", "Automovil Registrado");
                         cargarAutomoviles("");
-                        panelEditar.setVisible(false);
-                        this.setWidth(333);
-                        this.centerOnScreen();
                     } catch (Exception ex){
                         mostrarAlerta("Error al agregar automovil", "Error de conexion");
                     }
@@ -340,10 +338,8 @@ public class MostrarAutomoviles extends Stage{
                     try {
                         automovil = new Automovil (matricula, marca, modelo, linea , color, cliente);
                         controlador.actualizar(automovil);
+                        mostrarAlertaExito("Se ha actualizado el automovil en \n la base de datos", "Automovil Actualizado");
                         cargarAutomoviles("");
-                        panelEditar.setVisible(false);
-                        this.setWidth(333);
-                        this.centerOnScreen();
                     } catch (Exception ex) {
                         mostrarAlerta("Error al actualizar automovil", "Error de conexion");
                     }
@@ -540,6 +536,7 @@ public class MostrarAutomoviles extends Stage{
             panelEditar.setVisible(true);
             panelConsultar.setVisible(false);
             administrarAutomovil.setText("Agregar \n Cliente");
+            editarAutomovil = false;
         });
     }
 
@@ -630,11 +627,8 @@ public class MostrarAutomoviles extends Stage{
             try {
                 System.out.println(automovil.getId() + " a encontrar");
                 controlador.destroy(automovil.getId());
+                mostrarAlertaExito("Se ha eliminado el automovil de \n la base de datos", "Automovil Eliminado");
                 cargarAutomoviles("");
-                panelConsultar.setVisible(false);
-                this.setWidth(333);
-                this.centerOnScreen();
-                System.out.println("Automovil eliminado");
             } catch (Exception ex) {
                 mostrarAlerta("Error de conexión con la base de datos", "Error de conexión");
                 System.out.println(ex);
@@ -658,6 +652,40 @@ public class MostrarAutomoviles extends Stage{
         root.getChildren().add(stackPane);
         AnchorPane.setTopAnchor(stackPane, (500 - content.getPrefHeight()) / 2);
         AnchorPane.setLeftAnchor(stackPane, (panelEditar.getWidth() + (panelEditar.getWidth() - content.getPrefWidth()) / 2));
+        dialog.show();  
+    }
+    
+    public void mostrarAlertaExito(String mensaje, String titulo){
+        JFXDialogLayout content = new JFXDialogLayout();
+        ImageView check = new ImageView();
+        check.setImage(new Image("/resources/Check.png"));
+        check.setFitHeight(30);
+        check.setFitWidth(30);
+        
+        Label header = new Label();
+        header.setText("  " + titulo);
+        header.setGraphic(check);
+        content.setHeading(header);
+        content.getStyleClass().add("mensaje");
+        content.setBody(new Text(mensaje));
+        content.setPrefSize(300, 100);
+        StackPane stackPane = new StackPane();
+        stackPane.autosize();
+        JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
+        JFXButton button = new JFXButton("Okay");
+        button.setOnAction((ActionEvent event) -> {
+            dialog.close();
+            panelEditar.setVisible(false);
+            this.setWidth(333);
+            this.centerOnScreen();
+        });
+        button.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
+        button.setPrefHeight(32);
+        button.getStyleClass().add("btnAlerta");
+        content.setActions(button);
+        root.getChildren().add(stackPane);
+        AnchorPane.setTopAnchor(stackPane, (500 - content.getPrefHeight()) / 2);
+        AnchorPane.setLeftAnchor(stackPane, 345.00);
         dialog.show();  
     }
 
@@ -724,7 +752,7 @@ public class MostrarAutomoviles extends Stage{
             this.hide();
         });
         
-        JFXButton btnBuscarAutomovil = new JFXButton();
+        btnBuscarAutomovil = new JFXButton();
         btnBuscarAutomovil.setGraphic(new ImageView(new Image("/resources/Coche_Drawer.png")));
         btnBuscarAutomovil.setText("Buscar Automovil");
         btnBuscarAutomovil.setPrefHeight(25);
@@ -732,9 +760,6 @@ public class MostrarAutomoviles extends Stage{
         btnBuscarAutomovil.setLayoutX(11);
         btnBuscarAutomovil.setLayoutY(211);
         btnBuscarAutomovil.getStyleClass().add("botonesDrawer");
-        btnBuscarAutomovil.setOnAction(evt -> {
-            drawer.setVisible(false);
-        });
         
         JFXButton btnSalir = new JFXButton();
         btnSalir.setGraphic(new ImageView(new Image("/resources/Salir.png")));
@@ -767,6 +792,11 @@ public class MostrarAutomoviles extends Stage{
         
         btnDrawer.setOnMouseClicked(evt -> {
             menuTranslation.setRate(1);
+            menuTranslation.play();
+        });
+        
+        btnBuscarAutomovil.setOnAction(evt -> {
+            menuTranslation.setRate(-1);
             menuTranslation.play();
         });
         

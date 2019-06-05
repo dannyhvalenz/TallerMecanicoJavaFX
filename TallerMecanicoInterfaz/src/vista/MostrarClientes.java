@@ -46,7 +46,7 @@ public class MostrarClientes extends Stage{
     private JFXTextArea tfDireccionConsultar;
     
     private AnchorPane root, panelEditar, panelCliente, panelBusqueda, panelConsultar, panelClienteConsultar;
-    private JFXButton btnAgregar, btnEditar, btnEliminar;
+    private JFXButton btnAgregar, btnEditar, btnEliminar, btnBuscarCliente;
     private Label administrarCliente, administrarClienteConsultar;
     
     private boolean editarCliente = false;
@@ -143,18 +143,16 @@ public class MostrarClientes extends Stage{
         if(validarTelefono.trim().length() == 0){
             errores += "* El telefono no debe estar vacio \n";
         } else if (validarTelefono.trim().length() < 10){
-            errores += "* El telefono debe tener 10 dígitos \n";
+            errores += "* El telefono no debe tener menos \n de 10 dígitos \n";
+        } else if (validarTelefono.trim().length() > 10){
+            errores += "* El telefono no debe tener mas \n de 10 dígitos \n";
         }
         
         if(validarDireccion.trim().length() == 0){
             errores += "* La direccion no debe estar vacia \n";
         }
         
-        if (errores.length() == 0){
-            panelEditar.setVisible(false);
-            this.setWidth(333);
-            this.centerOnScreen();
-        } else {
+        if (errores.length() != 0){
             mostrarAlerta(errores, "Campos Vacios");
             valido = false;
         }
@@ -314,21 +312,22 @@ public class MostrarClientes extends Stage{
                 
                 if (editarCliente == false){
                     try {
+                        System.out.println("Agregar Cliente");
                         idCliente = controlador.getLastId() + 1;
                         System.out.println(idCliente);
                         cliente = new Cliente (idCliente, nombre, telefono, direccion, correo);
                         controlador.crearCliente(cliente);
+                        mostrarAlertaExito("Se ha registrado el cliente en \n la base de datos", "Cliente Registrado");
                         cargarClientes("");
                     } catch (Exception ex){
                         System.out.println(ex);
                     }
                 } else {
-                    System.out.println("Editar");
-                    System.out.println(nombre);
-                    System.out.println(idCliente);
+                    System.out.println("Editar Cliente: " + nombre);
                     try {
                         cliente = new Cliente (idCliente, nombre, telefono, direccion, correo);
                         controlador.editarCliente(cliente);
+                        mostrarAlertaExito("Se ha actualizado el cliente en \n la base de datos", "Cliente Actualizado");
                         cargarClientes("");
                     } catch (Exception ex) {
                         System.out.println(ex);
@@ -359,9 +358,7 @@ public class MostrarClientes extends Stage{
                 tfTelefonoConsultar.setText(tfTelefono.getText());
                 tfCorreoConsultar.setText(tfCorreo.getText());
                 nombre = tfNombre.getText();
-                
-                // REVISAR
-                
+
                 nombre = separarNombre(nombre);
                 nombre =  nombre.replaceAll("\\s+", "\n");
                 administrarClienteConsultar.setText(nombre);
@@ -529,6 +526,7 @@ public class MostrarClientes extends Stage{
             panelEditar.setVisible(true);
             panelConsultar.setVisible(false);
             administrarCliente.setText("Agregar \n Cliente");
+            editarCliente = false;
         });
     }
 
@@ -581,6 +579,40 @@ public class MostrarClientes extends Stage{
         }
         return nombre_nuevo;
     }               
+    
+    public void mostrarAlertaExito(String mensaje, String titulo){
+        JFXDialogLayout content = new JFXDialogLayout();
+        ImageView check = new ImageView();
+        check.setImage(new Image("/resources/Check.png"));
+        check.setFitHeight(30);
+        check.setFitWidth(30);
+        
+        Label header = new Label();
+        header.setText("  " + titulo);
+        header.setGraphic(check);
+        content.setHeading(header);
+        content.getStyleClass().add("mensaje");
+        content.setBody(new Text(mensaje));
+        content.setPrefSize(300, 100);
+        StackPane stackPane = new StackPane();
+        stackPane.autosize();
+        JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
+        JFXButton button = new JFXButton("Okay");
+        button.setOnAction((ActionEvent event) -> {
+            dialog.close();
+            panelEditar.setVisible(false);
+            this.setWidth(333);
+            this.centerOnScreen();
+        });
+        button.setButtonType(com.jfoenix.controls.JFXButton.ButtonType.RAISED);
+        button.setPrefHeight(32);
+        button.getStyleClass().add("btnAlerta");
+        content.setActions(button);
+        root.getChildren().add(stackPane);
+        AnchorPane.setTopAnchor(stackPane, (500 - content.getPrefHeight()) / 2);
+        AnchorPane.setLeftAnchor(stackPane, 345.00);
+        dialog.show();  
+    }
     
     public void mostrarAlerta(String mensaje, String titulo){
         JFXDialogLayout content = new JFXDialogLayout();
@@ -639,10 +671,8 @@ public class MostrarClientes extends Stage{
             ClienteJpaController controlador = new ClienteJpaController();
             try {
                 controlador.destroy(cliente.getId());
+                mostrarAlertaExito("Se ha eliminado el cliente de \n la base de datos", "Cliente Eliminado");
                 cargarClientes("");
-                panelConsultar.setVisible(false);
-                this.setWidth(333);
-                this.centerOnScreen();
             } catch (Exception ex) {
                 mostrarAlerta("Error de conexión con la base de datos", "Error de conexión");
                 System.out.println(ex);
@@ -716,7 +746,7 @@ public class MostrarClientes extends Stage{
         ruta.setLayoutY(127);
         ruta.setStyle("-fx-font-size:9pt; -fx-font-family: 'Fira Code', monospace; -fx-text-fill:#ffffff;");
         
-        JFXButton btnBuscarCliente = new JFXButton();
+        btnBuscarCliente = new JFXButton();
         btnBuscarCliente.setGraphic(new ImageView(new Image("/resources/Avatar_Drawer.png")));
         btnBuscarCliente.setText("Buscar Cliente");
         btnBuscarCliente.setPrefHeight(30);
@@ -724,9 +754,7 @@ public class MostrarClientes extends Stage{
         btnBuscarCliente.setLayoutX(11);
         btnBuscarCliente.setLayoutY(167);
         btnBuscarCliente.getStyleClass().add("botonesDrawer");
-        btnBuscarCliente.setOnAction(evt -> {
-            drawer.setVisible(false);
-        });
+        
         
         JFXButton btnBuscarAutomovil = new JFXButton();
         btnBuscarAutomovil.setGraphic(new ImageView(new Image("/resources/Coche_Drawer.png")));
@@ -768,6 +796,11 @@ public class MostrarClientes extends Stage{
         
         btnDrawer.setOnMouseClicked(evt -> {
             menuTranslation.setRate(1);
+            menuTranslation.play();
+        });
+        
+        btnBuscarCliente.setOnAction(evt -> {
+            menuTranslation.setRate(-1);
             menuTranslation.play();
         });
         
