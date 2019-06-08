@@ -11,7 +11,7 @@
  Target Server Version : 50725
  File Encoding         : 65001
 
- Date: 26/05/2019 13:26:17
+ Date: 08/06/2019 12:54:44
 */
 
 SET NAMES utf8mb4;
@@ -33,9 +33,10 @@ CREATE TABLE `Administrador` (
 -- Records of Administrador
 -- ----------------------------
 BEGIN;
-INSERT INTO `Administrador` VALUES (1, 'daniela@gmail.com', 'Daniela Hernandez', '12345');
-INSERT INTO `Administrador` VALUES (2, 'luis@gmail.com', 'Luis Parada', '12345');
-INSERT INTO `Administrador` VALUES (3, 'diana@gmail.com', 'Diana Pajonares', '12345');
+INSERT INTO `Administrador` VALUES (1, 'daniela@gmail.com', 'Daniela Hernandez', '827ccb0eea8a706c4c34a16891f84e7b');
+INSERT INTO `Administrador` VALUES (2, 'luis@gmail.com', 'Luis Parada', '827ccb0eea8a706c4c34a16891f84e7b');
+INSERT INTO `Administrador` VALUES (3, 'diana@gmail.com', 'Diana Pajonares', '827ccb0eea8a706c4c34a16891f84e7b');
+INSERT INTO `Administrador` VALUES (4, 'prueba@gmail.com', 'Prueba', '827ccb0eea8a706c4c34a16891f84e7b');
 COMMIT;
 
 -- ----------------------------
@@ -58,9 +59,8 @@ CREATE TABLE `Automovil` (
 -- Records of Automovil
 -- ----------------------------
 BEGIN;
-INSERT INTO `Automovil` VALUES ('1', 'Ford', 2011, 'Escape', 'Blanca', 1);
-INSERT INTO `Automovil` VALUES ('2', 'Audi', 2018, 'A3', 'Negro', 2);
-INSERT INTO `Automovil` VALUES ('3', 'Mazda', 2011, 'CX7', 'Blanca', 1);
+INSERT INTO `Automovil` VALUES ('TXV-901', 'Ford', 2011, 'Escape', 'Blanca', 1);
+INSERT INTO `Automovil` VALUES ('WOW-901', 'Mazda', 2011, 'CX7', 'Blanca', 1);
 COMMIT;
 
 -- ----------------------------
@@ -81,8 +81,7 @@ CREATE TABLE `Cliente` (
 -- ----------------------------
 BEGIN;
 INSERT INTO `Cliente` VALUES (1, 'Ruben Hernandez', '2282199050', 'Xalapa, Veracruz', 'ruben@gmail.com');
-INSERT INTO `Cliente` VALUES (2, 'Francisco Valenzuela', '2717117751', 'Murillo Vidal #43 Xalapa, Veracruz', 'francisco@gmail.com');
-INSERT INTO `Cliente` VALUES (3, 'Daniela Hernandez', '2323232323', 'Cordoba', 'danihv@gmail.com');
+INSERT INTO `Cliente` VALUES (5, 'Luis Parada Cruz', '2282212278', 'Murillo Vidal 145, Xalapa, Veracruz', 'luisparada@gmail.com');
 COMMIT;
 
 -- ----------------------------
@@ -93,13 +92,22 @@ CREATE TABLE `Reparacion` (
   `id` int(11) NOT NULL,
   `tipo` varchar(255) NOT NULL,
   `kilometraje` varchar(255) NOT NULL,
-  `fecha` varchar(255) NOT NULL,
-  `hora` varchar(255) NOT NULL,
+  `fecha` date NOT NULL,
+  `hora` date NOT NULL,
   `descripcionFalla` varchar(255) NOT NULL,
-  `descripcionMantenimiento` varchar(255) NOT NULL,
-  `idAutomovil` int(255) NOT NULL,
+  `descripcionMantenimiento` varchar(255) DEFAULT NULL,
+  `idAutomovil` varchar(255) NOT NULL,
+  `costo` int(255) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `idAutomovil` (`idAutomovil`)
+  KEY `matricula` (`idAutomovil`),
+  CONSTRAINT `matricula` FOREIGN KEY (`idAutomovil`) REFERENCES `Automovil` (`matricula`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- ----------------------------
+-- Records of Reparacion
+-- ----------------------------
+BEGIN;
+INSERT INTO `Reparacion` VALUES (1, 'Mecanico', '123123', '2019-06-03', '0002-12-31', '123213', '12312', 'WOW-901', 1231);
+COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;
