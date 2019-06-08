@@ -11,6 +11,11 @@ import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXTextField;
 import controladores.AdministradorJpaController;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Base64;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -22,6 +27,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import modelo.Administrador;
 
 /**
@@ -117,7 +125,12 @@ public class IniciarSesion extends Stage{
     private boolean validarUsuario() {
         boolean valido = false;
         AdministradorJpaController controlador = new AdministradorJpaController();
-        Administrador a = controlador.getAdmin(correo.getText(), contrasena.getText());
+        //Administrador a = controlador.getAdmin(correo.getText(), contrasena.getText());
+        
+        String correoValidar = correo.getText();
+        String contrasenaValidar = get_md5(contrasena.getText());
+        Administrador a = controlador.getAdmin(correoValidar, contrasenaValidar);
+       
         if (a != null){
             nombreAdmin = a.getNombre();
             valido = true;
@@ -147,6 +160,37 @@ public class IniciarSesion extends Stage{
         AnchorPane.setLeftAnchor(stackPane, (root.getWidth() - content.getPrefWidth()) / 2);
         dialog.show();  
     }
+    
+    public String get_md5(String CadenaOriginal){
+ 
+ 
+        String md5="";
+ 
+        try {
+            if (!CadenaOriginal.equalsIgnoreCase("")) {
+ 
+                MessageDigest md = MessageDigest.getInstance("MD5");
+                md.reset();
+                md.update(CadenaOriginal.getBytes());
+                byte bytes[] = md.digest();
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < bytes.length; i++) {
+                    String hex = Integer.toHexString(0xff & bytes[i]);
+                    if (hex.length() == 1) {
+                        sb.append('0');
+                    }
+                    sb.append(hex);
+                }
+ 
+                md5 = sb.toString();
+            }
+        } catch (NoSuchAlgorithmException e) {
+            md5 = "Error inesperado";
+ 
+        }
+        return md5;
+ 
+    }               
 }
 
    
