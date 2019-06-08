@@ -927,7 +927,7 @@ public class MostrarReparaciones extends Stage{
         content.setHeading(header);
         content.getStyleClass().add("mensaje");
         content.setBody(new Text(mensaje));
-        content.setPrefSize(300, 100);
+        content.setPrefSize(350, 100);
         StackPane stackPane = new StackPane();
         stackPane.autosize();
         JFXDialog dialog = new JFXDialog(stackPane, content, JFXDialog.DialogTransition.LEFT, true);
@@ -944,7 +944,7 @@ public class MostrarReparaciones extends Stage{
         content.setActions(button);
         root.getChildren().add(stackPane);
         AnchorPane.setTopAnchor(stackPane, (500 - content.getPrefHeight()) / 2);
-        AnchorPane.setLeftAnchor(stackPane, 345.00);
+        AnchorPane.setLeftAnchor(stackPane, 385.00);
         dialog.show();  
     }
     
